@@ -1,0 +1,10 @@
+#!/bin/bash
+
+for arg in "$@"; do
+    args="$args $arg"
+done
+
+cd /Users/ksahlin/source/kmergenie-1.6663/
+
+./kmergenie $args -o /tmp/kmergenie 
+
