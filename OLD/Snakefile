@@ -1,0 +1,53 @@
+# The following test will take a two read files estimate best k with kmer_genie
+
+#import os
+configfile:"config.json"
+KMERGENIE="/Users/ksahlin/source/kmergenie-1.6663/./kmergenie"
+PYTHON2="/usr/bin/python2.7"
+GNUTIME="/usr/bin/time -lp" # "/usr/bin/time -v" if Linux
+DATASETS=config["datasets"]
+#paths to infiles
+#INFILES=expand("/Users/ksahlin/_tmp/testdata_optimal_k/{dataset}.fa", dataset=DATASETS)
+
+# a pseudo-rule that collects the target files 
+rule all:
+   input:	expand("{opt_k_folder}/{tool}_{dataset}_{stepsize}.dat", opt_k_folder=config["kmertools_folder"], tool=config["opt_k_tools"], stepsize=config["kmergenie_rules"]["stepsize"], dataset=DATASETS)
+
+
+rule kmergenie:
+	input: reads={dataset}
+	output: csv="{opt_k_folder}/{tool}_{dataset}_{stepsize}.dat", stderr= ''.join(config["time_and_memory"], "/{tool}_{dataset}_{stepsize}.stderr")
+	params: stepsize="{stepsize}"
+	shell:
+		"""
+			echo kmergenie {input.reads}  {output.csv} {output.stderr} -s {params.stepsize}
+			{GNUTIME}   /tmp/./test_prgrm1.sh  >  {output.csv} 2>  {output.stderr}
+		"""
+
+
+rule optimalk:
+	input: reads={dataset}
+	output: csv="/tmp/optimal_k_{dataset}.dat", stderr="/tmp/optimal_k_{dataset}.stderr"
+	shell:
+		"""
+			echo optimal_k {input}  {output[0]}
+			{GNUTIME}  /tmp/./test_prgrm2.sh {input.reads} -o {output.csv} 1>  {output.csv} 2>  {output.stderr}
+		"""
+
+rule memory:
+
+
+
+# rule unitiger:
+# 	input: reads="/Users/ksahlin/_tmp/testdata_optimal_k/{DATASETS}.fa", csv="/tmp/optimal_k_{dataset}.dat", csv2="/tmp/kmergenie_{dataset}_{stepsize}.dat"
+# 	output: stdout="/tmp/kmergenie_{dataset}_{stepsize}.unitiger.out" #, "/tmp/optimal_k_{dataset}.unitiger.fa"
+
+# 	shell:
+# 		"""
+# 			echo /Users/ksahlin/_tmp/testdata_optimal_k/{dataset}.fa
+# 			k=$(awk '{{if(max<$2){max=$2;line=$2;k=$1}}END{print k}}' {input.csv})
+# 			a=$(awk '{{if(max<$2){max=$2;line=$2;a=$3}}END{print a}}' {input.csv})
+# 			Unitiger 3 2 {input.reads}  > {output.stdout}
+
+# 		"""
+

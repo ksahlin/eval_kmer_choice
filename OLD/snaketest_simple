@@ -1,0 +1,107 @@
+# The following test will take a read file estimate best k
+
+#import os
+configfile: "config.json"
+#BASE="/Users/ksahlin/Documents/workspace/data/data/real_genomes/staph/data/PE/"
+#DATASETS="frag_1.fastq frag_2.fastq".split()
+#DATASET="/Users/ksahlin/Documents/workspace/data/data/real_genomes/staph/data/PE/frag_1.fastq"
+
+REF="/Users/ksahlin/Documents/workspace/data/data/real_genomes/staph/data/reference.fasta"
+#INTERVAL='10 1'.split()
+
+SAMPLES="frag_1 frag_2".split()
+
+# a pseudo-rule that collects the target files
+rule all:
+   input:  expand("/tmp/{sample}.sam", sample=SAMPLES)
+
+# a general rule using wildcards that does the work
+
+rule map:
+    input:  "/Users/ksahlin/Documents/workspace/data/data/real_genomes/staph/data/PE/{sample}.fastq"
+    output: "/tmp/{sample}.sam"
+    shell:
+    	"""
+    		align  -sam --ref {REF} --out {output} {input}
+
+    	"""  
+
+
+# # The following test will take a two read files estimate best k with kmer_genie
+
+# #import os
+# configfile:"config.json"
+# KMERGENIE="/Users/ksahlin/source/kmergenie-1.6663/./kmergenie"
+# PYTHON2="/usr/bin/python2.7"
+# GNUTIME="/usr/bin/time -lp" # "/usr/bin/time -v" if Linux
+# #REF="/Users/ksahlin/Documents/workspace/data/data/real_genomes/staph/data/reference.fasta"
+
+# DATASETS="reads1 reads2".split()
+# #paths to infiles
+# #INFILES=expand("/Users/ksahlin/_tmp/testdata_optimal_k/{dataset}.fa", dataset=DATASETS)
+
+# # a pseudo-rule that collects the target files 
+# rule all:
+#    input:  expand("/tmp/kmergenie_{dataset}.dat", dataset=DATASETS)
+
+# # a general rule using wildcards that does the work
+
+
+# rule kmergenie:
+# 	input: "/Users/ksahlin/_tmp/testdata_optimal_k/{dataset}.fa"
+# 	output: "/tmp/kmergenie_{dataset}.dat", "/tmp/kmergenie_{dataset}.stdout", "/tmp/kmergenie_{dataset}.stderr"
+#     run:
+#         classes = [",".join(expand("mapped/{sample}.bam", sample=cls)) for cls in (CLASS1, CLASS2)]
+#         shell("cuffdiff -G {TRACK} --correct-fragment-bias {REF} {classes[0]} {classes[1]}")
+# 	shell:
+# 		"""
+# 			{GNUTIME} {PYTHON2} {KMERGENIE}  {input} -o {output[0]} 1>  {output[1]} 2>  {output[2]}
+# 		"""
+
+
+# rule optimalk:
+# 	input: "/Users/ksahlin/_tmp/testdata_optimal_k/{dataset}.fa"
+# 	output: "/tmp/kmergenie_{dataset}.dat", "/tmp/kmergenie_{dataset}.stdout", "/tmp/kmergenie_{dataset}.stderr"
+#     run:
+#         classes = [",".join(expand("mapped/{sample}.bam", sample=cls)) for cls in (CLASS1, CLASS2)]
+#         shell("cuffdiff -G {TRACK} --correct-fragment-bias {REF} {classes[0]} {classes[1]}")
+# 	shell:
+# 		"""
+# 			{GNUTIME} {PYTHON2} {KMERGENIE}  {input} -o {output[0]} 1>  {output[1]} 2>  {output[2]}
+# 		"""
+
+
+		
+# rule parse_k:
+# 	input: "/tmp/optimal_k_{dataset}.dat", "/tmp/kmergenie_{dataset}_{stepsize}.dat"
+# 	output: "/tmp/kmergenie_{dataset}_{stepsize}.bestk", "/tmp/optimal_k_{dataset}.bestk"
+# 	shell:
+# 		"""
+# 			awk '{if(max<$2){max=$2;line=$2;k=$1;a=$3}}END{print k,a}' {input[0]} >	/tmp/optimal_k_{dataset}.bestk 
+# 			awk '{if(max<$2){max=$2;line=$2;k=$1;a=$3}}END{print k,a}' {input[1]} > /tmp/kmergenie_{dataset}_{stepsize}.bestk
+# 		"""
+
+
+# rule get_runtime:
+
+# rule get_memory:
+
+# rule unitiger:
+# 	input: "/Users/ksahlin/_tmp/testdata_optimal_k/{dataset}.fa", "/tmp/optimal_k_{dataset}.dat", "/tmp/kmergenie_{dataset}_{stepsize}.dat"
+# 	output: "/tmp/kmergenie_{dataset}_{stepsize}.unitiger.fa" #, "/tmp/optimal_k_{dataset}.unitiger.fa"
+
+# 	shell:
+# 		"""
+# 			Unitiger 3 2 {input[0]}  > {output[0]}
+
+# 		"""
+
+# """
+# 	k=$(awk '{if(max<$2){max=$2;line=$2;k=$1}}END{print k}' {input[1]})
+# 	a=$(awk '{if(max<$2){max=$2;line=$2;a=$3}}END{print a}' {input[1]})
+# 	Unitiger "$k" "$a" {input[0]}  > {output[1]}
+
+# 	k=$(awk '{if(max<$2){max=$2;line=$2;k=$1}}END{print k}' {input[2]})
+# 	a=$(awk '{if(max<$2){max=$2;line=$2;a=$3}}END{print a}' {input[2]})
+# 	Unitiger "$k" "$a" {input[0]}  > {output[2]}
+# """
