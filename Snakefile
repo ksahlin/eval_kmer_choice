@@ -1,88 +1,57 @@
-# path to track and reference
-TRACK   = 'hg19.gtf'
-REF     = 'hg19.fa'
+
+DATASETS='reads1 reads2'.split()
+TOOLS='optimal_k kmergenie'.split()
+OUTBASE='/Users/ksahlin/_tmp/Optimal_k/OUT/'
+#####################################
+# standard python functions
+
+import re
+def get_kmer_genie_params():
+    pass
+    return 4,2
+
+def get_optimal_k_params():
+    pass
+    return 22,3
+
+def get_memory_and_runtime():
+    pass
 
 
-# sample names and classes
-CLASS1  = '101 102'.split()
-CLASS2  = '103 104'.split()
-SAMPLES = CLASS1 + CLASS2
-
-
-# path to bam files
-CLASS1_BAM = expand('mapped/{sample}.bam', sample=CLASS1)
-CLASS2_BAM = expand('mapped/{sample}.bam', sample=CLASS2)
+#####################################
 
 
 rule all:
     input:
-        'out/memory_table.tex',
-        'out/k_choice.tex'
-        'out/eval_table.tex'        
+        # 'out/memory_table.tex',
+        # 'out/k_choice.tex',
+        # 'out/eval_table.tex',    
+        expand("/Users/ksahlin/_tmp/Optimal_k/OUT/{tool}_{dataset}.dat", tool=TOOLS, dataset=DATASETS)    
 
 
 rule optimal_k:
-    input: "/Users/ksahlin/_tmp/testdata_optimal_k/{dataset}.fa"
-    output: "/Users/ksahlin/_tmp/kmergenie_{dataset}.dat", "/tmp/kmergenie_{dataset}.stderr"
-        csv="{opt_k_folder}/{tool}_{dataset}_{stepsize}.dat"
-    output:
-        'assembly/{sample}/transcripts.gtf',
-        dir='assembly/{sample}'
-    threads: 4
-    shell:
-        'cufflinks --num-threads {threads} -o {output.dir} '
-        '--frag-bias-correct {REF} {input}'
+    input: "/Users/ksahlin/_tmp/Optimal_k/testdata_optimal_k/{dataset}.fa"
+    output: csv=OUTBASE+"optimal_k_{dataset}.dat", stderr=OUTBASE+"optimal_k_{dataset}.stderr"
+    run:
+        for i in range(10):
+            pass
+        shell("/Users/ksahlin/_tmp/Optimal_k/./test_prgrm1.sh 1> {output.csv} 2> {output.stderr}")
 
 rule kmergenie:
-    input:
-        'mapped/{sample}.bam'
-    output:
-        'assembly/{sample}/transcripts.gtf',
-        dir='assembly/{sample}'
-    threads: 4
-    shell:
-        'cufflinks --num-threads {threads} -o {output.dir} '
-        '--frag-bias-correct {REF} {input}'
-
-rule compose_merge:
-    input:
-        expand('assembly/{sample}/transcripts.gtf', sample=SAMPLES)
-    output:
-        txt='assembly/assemblies.txt'
+    input: "/Users/ksahlin/_tmp/Optimal_k/testdata_optimal_k/{dataset}.fa"
+    output: csv=OUTBASE+"kmergenie_{dataset}.dat", stderr=OUTBASE+"kmergenie_{dataset}.stderr"
     run:
-        with open(output.txt, 'w') as out:
-            print(*input, sep="\n", file=out)
+        for i in range(10):
+            pass
+        shell("/Users/ksahlin/_tmp/Optimal_k/./test_prgrm2.sh 1> {output.csv} 2> {output.stderr}")
 
+rule unitiger:
+    input: csv=OUTBASE+"{tool}_{dataset}.dat", reads="/Users/ksahlin/_tmp/Optimal_k/testdata_optimal_k/{dataset}.fa"
+    output: stats=OUTBASE+"{tool}_{dataset}.stdout", contigs=OUTBASE+"{tool}_{dataset}.contigs.fa"
+    run:
+        if {tool} == "optimal_k":
+            k,a = get_optimal_k_params()
+        elif {tool} == "kmergenie":
+            k,a = get_kmer_genie_params()
 
-rule merge_assemblies:
-    input:
-        'assembly/assemblies.txt'
-    output:
-        'assembly/merged/merged.gtf', dir='assembly/merged'
-    shell:
-        'cuffmerge -o {output.dir} -s {REF} {input}'
-
-
-rule compare_assemblies:
-    input:
-        'assembly/merged/merged.gtf'
-    output:
-        'assembly/comparison/all.stats',
-        dir='assembly/comparison'
-    shell:
-        'cuffcompare -o {output.dir}all -s {REF} -r {TRACK} {input}'
-
-
-rule diffexp:
-    input:
-        class1=CLASS1_BAM,
-        class2=CLASS2_BAM,
-        gtf='assembly/merged/merged.gtf'
-    output:
-        'diffexp/gene_exp.diff', 'diffexp/isoform_exp.diff'
-    params:
-        class1=",".join(CLASS1_BAM),
-        class2=",".join(CLASS2_BAM)
-    threads: 8
-    shell:
-        'cuffdiff --num-threads {threads} {gtf} {params.class1} {params.class2}'
+        shell('unitiger {input.reads} {0} {1}'.format(k,a))    
