@@ -12,7 +12,7 @@ import re
 import os
 def get_kmer_genie_params():
     pass
-    return 4,2
+    return 31,2
 
 def get_optimal_k_params():
     pass
@@ -31,8 +31,13 @@ rule all:
         # 'out/k_choice.tex',
         # 'out/eval_table.tex',    
         #expand("/Users/ksahlin/_tmp/Optimal_k/OUT/{tool}_{dataset}.dat", tool=TOOLS, dataset=DATASETS)    
-        expand(OUTBASE+"{tool}_{dataset}.stdout", tool=TOOLS, dataset=DATASETS),
-        expand(OUTBASE+"{tool}_{dataset}.contigs.fa", tool=TOOLS, dataset=DATASETS)
+        #expand(OUTBASE+"{tool}_{dataset}.unitiger.stdout", tool=TOOLS, dataset=DATASETS),
+        #expand(OUTBASE+"{tool}_{dataset}.contigs.fa", tool=TOOLS, dataset=DATASETS)
+        #expand(OUTBASE+"{tool}_{dataset}/results.txt", tool=TOOLS, dataset=DATASETS)
+        #expand(OUTBASE+"{tool}_{dataset}/report.txt", tool=TOOLS, dataset=DATASETS),
+        #expand(OUTBASE+"{tool}_{dataset}/time_and_mem.txt", tool=TOOLS, dataset=DATASETS),
+        OUTBASE+"performance_table.tex",        
+        OUTBASE+"quality_table.tex"
 
 # rule dataset:
 #     input: "/Users/ksahlin/_tmp/Optimal_k/testdata_optimal_k/{dataset}.fa"
@@ -62,7 +67,7 @@ rule kmergenie:
 
 rule unitiger:
     input: csv=OUTBASE+"{tool}_{dataset}.dat", reads="/Users/ksahlin/_tmp/Optimal_k/testdata_optimal_k/{dataset}.fa"
-    output: stats=OUTBASE+"{tool}_{dataset}.stdout", contigs=OUTBASE+"{tool}_{dataset}.contigs.fa"
+    output: stats=OUTBASE+"{tool}_{dataset}.unitiger.stdout" #, contigs=OUTBASE+"{tool}_{dataset}.contigs.fa"
     run:
         print(re.search("optimal_k", input.csv))
         print(re.search("kmergenie", input.csv))
@@ -75,4 +80,33 @@ rule unitiger:
             pass #print(shell("{tool}"))
 
         shell("echo {{input.reads}} {0} {1}".format(k,a)) 
-        shell("unitiger {{input.reads}} {0} {1}".format(k,a))    
+        shell("unitiger {{input.reads}} {0} {1} 1> {{output.stats}}".format(k,a))   
+
+
+rule QUAST:
+    input: stats=OUTBASE+"{tool}_{dataset}.unitiger.stdout" #, contigs=OUTBASE+"{tool}_{dataset}.contigs.fa"
+    output: folder=OUTBASE+"{tool}_{dataset}/report.txt"
+    run:
+        shell("mkdir -p {output.folder}") 
+        shell("/Users/ksahlin/_tmp/Optimal_k/./test_prgrm2.sh < {input.stats} > {output.folder}/results.txt")   
+
+
+rule time_and_mem:
+    input: stderr=OUTBASE+"{tool}_{dataset}.stderr"
+    output: folder=OUTBASE+"{tool}_{dataset}/time_and_mem.txt"
+    run:
+        shell("mkdir -p {output.folder}") 
+        shell("touch {output.folder}")   
+
+rule performace_latex_table:
+    input: expand(OUTBASE+"{tool}_{dataset}/time_and_mem.txt", tool=TOOLS, dataset=DATASETS)
+    output: table=OUTBASE+"performance_table.tex"
+    run:
+        shell("touch {output.table}") 
+
+
+rule quality_latex_table:
+    input: expand(OUTBASE+"{tool}_{dataset}/report.txt", tool=TOOLS, dataset=DATASETS)
+    output: table=OUTBASE+"quality_table.tex"
+    run:
+        shell("touch {output.table}") 

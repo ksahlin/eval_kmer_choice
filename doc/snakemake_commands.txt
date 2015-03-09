@@ -3,3 +3,7 @@ snakemake --list-code-changes
 # create flowchart
 snakemake --dag > /path/dag.dot
 dot -Tps  /path/dag.dot > outpath/snakemakeflow.eps
+
+snakemake --dag | dot -Tpdf > dag.pdf
+
+snakemake --forceall --dag | dot -Tpdf > dag.pdf
