@@ -1,10 +1,13 @@
-
-DATASETS='reads1 reads2'.split()
+DATASETS='staph rhodo plasm hs14 spruce'.split()
 TOOLS='optimal_k kmergenie'.split()
-OUTBASE='/Users/ksahlin/_tmp/Optimal_k/OUT/'
+INBASE='/home/kris/Work/optimal_k/config/'
+OUTBASE='/proj/b2013169/private/data/optimal_k/'
 
 PYTHON2="/usr/bin/python2.7"
 GNUTIME="/usr/bin/time -lp" # "/usr/bin/time -v" if Linux
+
+configfile: "config.json"
+
 #####################################
 # standard python functions
 
@@ -27,48 +30,52 @@ def get_memory_and_runtime():
 
 rule all:
     input:
-        # 'out/memory_table.tex',
-        # 'out/k_choice.tex',
-        # 'out/eval_table.tex',    
-        #expand("/Users/ksahlin/_tmp/Optimal_k/OUT/{tool}_{dataset}.dat", tool=TOOLS, dataset=DATASETS)    
-        #expand(OUTBASE+"{tool}_{dataset}.unitiger.stdout", tool=TOOLS, dataset=DATASETS),
-        #expand(OUTBASE+"{tool}_{dataset}.contigs.fa", tool=TOOLS, dataset=DATASETS)
-        #expand(OUTBASE+"{tool}_{dataset}/results.txt", tool=TOOLS, dataset=DATASETS)
-        #expand(OUTBASE+"{tool}_{dataset}/report.txt", tool=TOOLS, dataset=DATASETS),
-        #expand(OUTBASE+"{tool}_{dataset}/time_and_mem.txt", tool=TOOLS, dataset=DATASETS),
         OUTBASE+"performance_table.tex",        
         OUTBASE+"quality_table.tex"
 
-# rule dataset:
-#     input: "/Users/ksahlin/_tmp/Optimal_k/testdata_optimal_k/{dataset}.fa"
-#     output: "/Users/ksahlin/_tmp/Optimal_k/testdata_optimal_k/{dataset}.fa", temp("/Users/ksahlin/_tmp/Optimal_k/testdata_optimal_k/{dataset}.check")
-#     run:
-#         if os.path.isfile(input) :
-#             print(input,'found')
-#         else:
-#             print(input,'not found')
-
-
-rule optimal_k:
-    input: "/Users/ksahlin/_tmp/Optimal_k/testdata_optimal_k/{dataset}.fa"
-    output: csv=OUTBASE+"optimal_k_{dataset}.dat", stderr=OUTBASE+"optimal_k_{dataset}.stderr"
+rule optimal_k_index:
+    input: reads=INBASE+"{dataset}.cfg"
+    output: index=OUTBASE+"optimal_k/{dataset}/index", 
+            stderr=OUTBASE+"optimal_k/{dataset}/index.stderr", 
+            stdout=OUTBASE+"optimal_k/{dataset}/index.stdout",
+            temp_csv=temp("/tmp/optimal_k/{dataset}.csv")
     run:
-        for i in range(10):
-            pass
-        shell(" {GNUTIME} /Users/ksahlin/_tmp/Optimal_k/./test_prgrm1.sh 1> {output.csv} 2> {output.stderr}")
+        shell(" {GNUTIME} optimal-k -r {input.reads}  --buildindex {output.index} -k 2 -K 1 -o {output.temp_csv} 1> {output.stdout} 2> {output.stderr}")
+
+rule optimal_k_sampling:
+    input: reads=INBASE+"{dataset}.cfg", index=OUTBASE+"optimal_k/{dataset}/index"
+    output: stderr=OUTBASE+"optimal_k/{dataset}/sampling.stderr", 
+            stdout=OUTBASE+"optimal_k/{dataset}/sampling.stdout",
+            results=OUTBASE+"optimal_k/{dataset}/sampling.csv",
+            best_params=OUTBASE+"optimal_k/{dataset}/best_params.txt"
+    run:
+        shell(" {GNUTIME} optimal-k -r {input.reads}  --readindex {input.index} -a 1 -A 5 -o {output.results} 1> {output.stdout} 2> {output.stderr}")
+        for result_file in OUTBASE+"optimal_k/{dataset}":
+            k,a = parse_file_here()
+
+        print("{{0}}\t{{1}}".format(k,a),output.best_params)
 
 rule kmergenie:
-    input: "/Users/ksahlin/_tmp/Optimal_k/testdata_optimal_k/{dataset}.fa"
-    output: csv=OUTBASE+"kmergenie_{dataset}.dat", stderr=OUTBASE+"kmergenie_{dataset}.stderr"
+    input: reads=INBASE+"{dataset}.cfg"
+    output: csv=OUTBASE+"kmergenie/{dataset}/kmergenie.dat",
+            stderr=OUTBASE+"kmergenie/{dataset}/kmergenie.stderr", 
+            stdout=OUTBASE+"kmergenie/{dataset}/kmergenie.stdout",
+            best_params=OUTBASE+"kmergenie/{dataset}/best_params.txt"
     run:
-        for i in range(10):
-            pass
-        shell(" {GNUTIME} /Users/ksahlin/_tmp/Optimal_k/./test_prgrm2.sh 1> {output.csv} 2> {output.stderr}")
+        shell(" {GNUTIME} kmergenie -o {OUTBASE}kmergenie/{dataset} 1> {output.stdout} 2> {output.stderr}")
+        for result_file in OUTBASE+"kmergenie/{dataset}":
+            k,a = parse_file_here()
+
+        print("{{0}}\t{{1}}".format(k,a),output.best_params)
 
 rule unitiger:
-    input: csv=OUTBASE+"{tool}_{dataset}.dat", reads="/Users/ksahlin/_tmp/Optimal_k/testdata_optimal_k/{dataset}.fa"
-    output: stats=OUTBASE+"{tool}_{dataset}.unitiger.stdout" #, contigs=OUTBASE+"{tool}_{dataset}.contigs.fa"
+    input:  csv=OUTBASE+"{tool}/{dataset}/best_params.txt", 
+            reads=INBASE+"{dataset}.cfg"
+    output: stdout=OUTBASE+"{tool}/{dataset}.unitiger.stdout",
+            stderr=OUTBASE+"{tool}/{dataset}.unitiger.stdout",
+            contigs=OUTBASE+"{tool}/{dataset}.contigs.fa"
     run:
+
         print(re.search("optimal_k", input.csv))
         print(re.search("kmergenie", input.csv))
         print(input.csv)
@@ -77,15 +84,16 @@ rule unitiger:
         elif re.search("kmergenie", input.csv):
             k,a = get_kmer_genie_params()
         else:
-            pass #print(shell("{tool}"))
+            print(shell("{tool}"))
 
         shell("echo {{input.reads}} {0} {1}".format(k,a)) 
+        shell("{config[unitiger_rules][load_env]}")
         shell("unitiger {{input.reads}} {0} {1} 1> {{output.stats}}".format(k,a))   
 
 
 rule QUAST:
-    input: stats=OUTBASE+"{tool}_{dataset}.unitiger.stdout" #, contigs=OUTBASE+"{tool}_{dataset}.contigs.fa"
-    output: folder=OUTBASE+"{tool}_{dataset}/report.txt"
+    input: contigs=OUTBASE+"{tool}/{dataset}.contigs.fa"
+    output: results=OUTBASE+"{tool}/{dataset}/report.txt"
     run:
         shell("mkdir -p {output.folder}") 
         shell("/Users/ksahlin/_tmp/Optimal_k/./test_prgrm2.sh < {input.stats} > {output.folder}/results.txt")   
