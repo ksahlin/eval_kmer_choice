@@ -25,6 +25,18 @@ def get_optimal_k_params():
 def get_memory_and_runtime():
     pass
 
+def myfunc(wildcards):
+    #print(dir(wildcards))
+    #print(wildcards.__contains__) 
+    input_list_to_performace_latex_table = []
+    for dataset in DATASETS:
+        #print(dataset) 
+        #print(OUTBASE+"{0}/kmergenie/kmergenie_time_and_mem.txt".format(dataset))
+        input_list_to_performace_latex_table.append(OUTBASE+"{0}/kmergenie/kmergenie_time_and_mem.txt".format(dataset) )
+        input_list_to_performace_latex_table.append(OUTBASE+"{0}/optimal_k/index_time_and_mem.txt".format(dataset) )
+        input_list_to_performace_latex_table.append(OUTBASE+"{0}/optimal_k/sampling_time_and_mem.txt".format(dataset) )
+    #print(input_list_to_performace_latex_table)
+    return input_list_to_performace_latex_table
 
 #####################################
 
@@ -41,7 +53,7 @@ rule optimal_k_index:
             stdout=OUTBASE+"{dataset}/optimal_k/index.stdout",
             temp_csv=temp("/tmp/{dataset}/index.csv")
     run:
-        print('hello')
+        pass #print('hello')
         #shell(" {GNUTIME} optimal-k -r {input.reads}  --buildindex {output.index} -k 2 -K 1 -o {output.temp_csv} 1> {output.stdout} 2> {output.stderr}")
 
         ###########
@@ -57,7 +69,7 @@ rule optimal_k_sampling:
             results=OUTBASE+"{dataset}/optimal_k/sampling.csv",
             best_params=OUTBASE+"{dataset}/optimal_k/best_params.txt"
     run:
-        print("hello")
+        pass #print("hello")
         # shell(" {GNUTIME} optimal-k -r {input.reads}  --readindex {input.index} -a 1 -A 5 -o {output.results} 1> {output.stdout} 2> {output.stderr}")
         # for result_file in OUTBASE+"{dataset}/sampling":
         #     k,a = parse_file_here()
@@ -77,7 +89,7 @@ rule kmergenie:
             stdout=OUTBASE+"{dataset}/kmergenie/kmergenie.stdout",
             best_params=OUTBASE+"{dataset}/kmergenie/best_params.txt"
     run:
-        print("hello")
+        pass #print("hello")
         # shell(" {GNUTIME} {PYTHON2} kmergenie -o {OUTBASE}{wildcards.dataset}/kmergenie {input.reads} 1> {output.stdout} 2> {output.stderr}")
         # for result_file in OUTBASE+"{dataset}/kmergenie":
         #     k,a = parse_file_here()
@@ -98,7 +110,7 @@ rule unitiger:
             stderr=OUTBASE+"{dataset}/{tool}.unitiger.stdout",
             contigs=OUTBASE+"{dataset}/{tool}.contigs.fa"
     run:
-        print("hello")
+        pass #print("hello")
         # print(re.search("optimal_k", input.csv))
         # print(re.search("kmergenie", input.csv))
         # print(input.csv)
@@ -143,7 +155,7 @@ rule time_and_mem:
         ###########
 
 rule performace_latex_table:
-    input: files="/Users/ksahlin/_tmp/Optimal_k/OUT/hs14/kmergenie/kmergenie_time_and_mem.txt" #expand(OUTBASE+"{dataset}/{tool}/{method}_time_and_mem.txt ", dataset=DATASETS, tool=TOOLS,method=METHODS)
+    input: files= myfunc #expand(OUTBASE+"{dataset}/{tool}/{wildcards.method}_time_and_mem.txt ", dataset=DATASETS, tool=TOOLS) #expand(OUTBASE+"{dataset}/{tool}/{method}_time_and_mem.txt ", dataset=DATASETS, tool=TOOLS,method=METHODS) #files="/Users/ksahlin/_tmp/Optimal_k/OUT/hs14/kmergenie/kmergenie_time_and_mem.txt" #
     output: table=OUTBASE+"performance_table.tex"
     run:
         #for file in input.files:
