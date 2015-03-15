@@ -1,6 +1,6 @@
 {
 
     "unitiger_rules" : {
-        "load_env": "pyenv shell system"
+        "load_env": "pyenv shell system"}
  
 }
