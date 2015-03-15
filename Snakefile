@@ -26,16 +26,11 @@ def get_memory_and_runtime():
     pass
 
 def myfunc(wildcards):
-    #print(dir(wildcards))
-    #print(wildcards.__contains__) 
     input_list_to_performace_latex_table = []
     for dataset in DATASETS:
-        #print(dataset) 
-        #print(OUTBASE+"{0}/kmergenie/kmergenie_time_and_mem.txt".format(dataset))
         input_list_to_performace_latex_table.append(OUTBASE+"{0}/kmergenie/kmergenie_time_and_mem.txt".format(dataset) )
         input_list_to_performace_latex_table.append(OUTBASE+"{0}/optimal_k/index_time_and_mem.txt".format(dataset) )
         input_list_to_performace_latex_table.append(OUTBASE+"{0}/optimal_k/sampling_time_and_mem.txt".format(dataset) )
-    #print(input_list_to_performace_latex_table)
     return input_list_to_performace_latex_table
 
 #####################################
