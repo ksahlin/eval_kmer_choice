@@ -119,8 +119,23 @@ def parse_quast(quast_report):
     misassm = large_misassm + local_misassm
     return(misassm, N50, NA50, genome_size)
 
-def get_memory_and_runtime():
-    pass
+def get_memory_and_runtime(stderr_file):
+    # lines = open(stderr_file, 'r').readlines()
+    # for line in lines:
+    #     if re.match(r"Total length \(\>\= 0 bp\)",line):
+    #         genome_size = int(line.strip().split()[5])
+    #     if re.match(r"N50",line):
+    #         N50 = int(line.strip().split()[1])
+    #     if re.match(r"NA50",line):
+    #         NA50 = int(line.strip().split()[1]) 
+    #     if re.match(r"# misassemblies",line):
+    #         large_misassm = int(line.strip().split()[2]) 
+    #     if re.match(r"# local misassemblies",line):
+    #         local_misassm = int(line.strip().split()[3]) 
+
+    # misassm = large_misassm + local_misassm
+    # return(max_gb_used,user_time,sys_time, real_time)
+    return 0,0,0,0
 
 def myfunc(wildcards):
     input_list_to_performace_latex_table = []
@@ -236,13 +251,12 @@ rule QUAST:
 
 
 rule time_and_mem:
-    input: rules.optimal_k_index.output.stderr,
-           rules.optimal_k_sampling.output.stderr,
-           rules.kmergenie.output.stderr #, stderr=OUTBASE+"{dataset}/{tool}/{method}.stderr"
+    input:  stderr=OUTBASE+"{dataset}/{tool}/{method}.stderr" #rules.optimal_k_index.output.stderr, rules.optimal_k_sampling.output.stderr,rules.kmergenie.output.stderr #,
     output: outfile=OUTBASE+"{dataset}/{tool}/{method}_time_and_mem.txt"
     run:
-        shell("touch {OUTBASE}{wildcards.dataset}/{wildcards.tool}/{wildcards.method}_time_and_mem.txt ") 
-
+        max_gb_used,user_time,sys_time, real_time = get_memory_and_runtime(input.stderr)
+        #shell("touch {OUTBASE}{wildcards.dataset}/{wildcards.tool}/{wildcards.method}_time_and_mem.txt ") 
+        
         ###########
         # for testing on mac:
         shell(" touch {output.outfile} " )
