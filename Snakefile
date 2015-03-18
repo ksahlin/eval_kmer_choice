@@ -1,12 +1,4 @@
-DATASETS='staph rhodo plasm hs14 spruce'.split()
-TOOLS='optimal_k kmergenie'.split()
-METHODS='sampling index default'.split()
-INBASE='/Users/ksahlin/_tmp/Optimal_k/' # '/home/kris/Work/optimal_k/config/' # local testing: /Users/ksahlin/_tmp/Optimal_k/
-OUTBASE='/Users/ksahlin/_tmp/Optimal_k/OUT/' # '/proj/b2013169/private/data/optimal_k/' # local testing: /Users/ksahlin/_tmp/Optimal_k/OUT/
-
-PYTHON2="/usr/bin/python2.7"
-GNUTIME= "/usr/bin/time -lp" #"/usr/bin/time -v" #if Mac 
-
+ 
 configfile: "config.json"
 
 STDERRSTRING="""
@@ -166,10 +158,10 @@ def  parse_gnu_time(stderr_file):
 
 def myfunc(wildcards):
     input_list_to_performace_latex_table = []
-    for dataset in DATASETS:
-        input_list_to_performace_latex_table.append(OUTBASE+"{0}/kmergenie/default_time_and_mem.txt".format(dataset) )
-        input_list_to_performace_latex_table.append(OUTBASE+"{0}/optimal_k/index_time_and_mem.txt".format(dataset) )
-        input_list_to_performace_latex_table.append(OUTBASE+"{0}/optimal_k/sampling_time_and_mem.txt".format(dataset) )
+    for dataset in config["DATASETS"]:
+        input_list_to_performace_latex_table.append(config["OUTBASE"]+"{0}/kmergenie/default_time_and_mem.txt".format(dataset) )
+        input_list_to_performace_latex_table.append(config["OUTBASE"]+"{0}/optimal_k/index_time_and_mem.txt".format(dataset) )
+        input_list_to_performace_latex_table.append(config["OUTBASE"]+"{0}/optimal_k/sampling_time_and_mem.txt".format(dataset) )
     return input_list_to_performace_latex_table
 
 ###########################################################
@@ -177,18 +169,18 @@ def myfunc(wildcards):
 
 rule all:
     input:
-        OUTBASE+"performance_table.tex",        
-        OUTBASE+"quality_table.tex"
+        config["OUTBASE"]+"performance_table.tex",        
+        config["OUTBASE"]+"quality_table.tex"
 
 rule optimal_k_index:
-    input: reads=INBASE+"{dataset}.cfg"
-    output: index=OUTBASE+"{dataset}/optimal_k/index", 
-            stderr=OUTBASE+"{dataset}/optimal_k/index.stderr", 
-            stdout=OUTBASE+"{dataset}/optimal_k/index.stdout",
+    input: reads=config["INBASE"]+"{dataset}.cfg"
+    output: index=config["OUTBASE"]+"{dataset}/optimal_k/index", 
+            stderr=config["OUTBASE"]+"{dataset}/optimal_k/index.stderr", 
+            stdout=config["OUTBASE"]+"{dataset}/optimal_k/index.stdout",
             temp_csv=temp("/tmp/{dataset}/index.csv")
     run:
-        pass #print('hello')
-        #shell(" {GNUTIME} optimal-k -r {input.reads}  --buildindex {output.index} -o {output.temp_csv} 1> {output.stdout} 2> {output.stderr}")
+        time=config["GNUTIME"]
+        #shell(" {time} optimal-k -r {input.reads}  --buildindex {output.index} -o {output.temp_csv} 1> {output.stdout} 2> {output.stderr}")
 
         ###########
         # for testing on mac:
@@ -198,15 +190,15 @@ rule optimal_k_index:
         ###########
 
 rule optimal_k_sampling:
-    input: reads=INBASE+"{dataset}.cfg", index=OUTBASE+"{dataset}/optimal_k/index"
-    output: stderr=OUTBASE+"{dataset}/optimal_k/sampling.stderr", 
-            stdout=OUTBASE+"{dataset}/optimal_k/sampling.stdout",
-            csv=OUTBASE+"{dataset}/optimal_k/sampling.csv",
-            best_params=OUTBASE+"{dataset}/optimal_k/best_params.txt"
+    input: reads=config["INBASE"]+"{dataset}.cfg", index=config["OUTBASE"]+"{dataset}/optimal_k/index"
+    output: stderr=config["OUTBASE"]+"{dataset}/optimal_k/sampling.stderr", 
+            stdout=config["OUTBASE"]+"{dataset}/optimal_k/sampling.stdout",
+            csv=config["OUTBASE"]+"{dataset}/optimal_k/sampling.csv",
+            best_params=config["OUTBASE"]+"{dataset}/optimal_k/best_params.txt"
     run:
-        pass #print("hello")
-        # shell(" {GNUTIME} optimal-k -r {input.reads}  --loadindex {input.index} -a 1 -A 5 -o {output.csv} 1> {output.stdout} 2> {output.stderr}")
-        # for result_file in OUTBASE+"{dataset}/sampling":
+        time=config["GNUTIME"]
+        # shell(" {time} optimal-k -r {input.reads}  --loadindex {input.index} -a 1 -A 5 -o {output.csv} 1> {output.stdout} 2> {output.stderr}")
+        # for result_file in config["OUTBASE"]+"{dataset}/sampling":
         #     k,a = parse_file_here()
 
         # print("{{0}}\t{{1}}".format(k,a),output.best_params)
@@ -220,15 +212,16 @@ rule optimal_k_sampling:
         ###########
 
 rule kmergenie:
-    input: reads=INBASE+"{dataset}.cfg"
-    output: csv=OUTBASE+"{dataset}/kmergenie/default.dat",
-            stderr=OUTBASE+"{dataset}/kmergenie/default.stderr", 
-            stdout=OUTBASE+"{dataset}/kmergenie/default.stdout",
-            best_params=OUTBASE+"{dataset}/kmergenie/best_params.txt"
+    input: reads=config["INBASE"]+"{dataset}.cfg"
+    output: csv=config["OUTBASE"]+"{dataset}/kmergenie/default.dat",
+            stderr=config["OUTBASE"]+"{dataset}/kmergenie/default.stderr", 
+            stdout=config["OUTBASE"]+"{dataset}/kmergenie/default.stdout",
+            best_params=config["OUTBASE"]+"{dataset}/kmergenie/best_params.txt"
     run:
-        pass #print("hello")
-        # shell(" {GNUTIME} {PYTHON2} kmergenie -o {OUTBASE}{wildcards.dataset}/kmergenie {input.reads} 1> {output.stdout} 2> {output.stderr}")
-        # for result_file in OUTBASE+"{dataset}/kmergenie":
+        env=config["PYTHON2"]
+        time=config["GNUTIME"]
+        # shell(" {time} {env} kmergenie -o {config["OUTBASE"]}{wildcards.dataset}/kmergenie {input.reads} 1> {output.stdout} 2> {output.stderr}")
+        # for result_file in config["OUTBASE"]+"{dataset}/kmergenie":
         #     k,a = parse_file_here()
 
         # print("{{0}}\t{{1}}".format(k,a),output.best_params)
@@ -245,11 +238,11 @@ rule kmergenie:
 
 
 rule unitiger:
-    input:  reads=INBASE+"{dataset}.cfg", 
-            params=OUTBASE+"{dataset}/{tool}/best_params.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
-    output: stdout=OUTBASE+"{dataset}/{tool}/unitiger.stdout",
-            stderr=OUTBASE+"{dataset}/{tool}/unitiger.stderr",
-            contigs=OUTBASE+"{dataset}/{tool}/unitiger.fa"
+    input:  reads=config["INBASE"]+"{dataset}.cfg", 
+            params=config["OUTBASE"]+"{dataset}/{tool}/best_params.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
+    output: stdout=config["OUTBASE"]+"{dataset}/{tool}/unitiger.stdout",
+            stderr=config["OUTBASE"]+"{dataset}/{tool}/unitiger.stderr",
+            contigs=config["OUTBASE"]+"{dataset}/{tool}/unitiger.fa"
     run:
         k,a = get_k_and_a_for_assembler(input.params)
 
@@ -264,11 +257,12 @@ rule unitiger:
         ###########
 
 rule QUAST:
-    input: contigs=OUTBASE+"{dataset}/{tool}/unitiger.fa"
-    output: results=OUTBASE+"{dataset}/{tool}/QUAST/report.txt",
-            nice_format=OUTBASE+"{dataset}/{tool}/result_metrics.csv"
+    input: contigs=config["OUTBASE"]+"{dataset}/{tool}/unitiger.fa"
+    output: results=config["OUTBASE"]+"{dataset}/{tool}/QUAST/report.txt",
+            nice_format=config["OUTBASE"]+"{dataset}/{tool}/result_metrics.csv"
     run:
-        shell("mkdir -p {OUTBASE}/{wildcards.dataset}/{wildcards.tool}/QUAST/") 
+        out=config['OUTBASE']
+        shell("mkdir -p {out}/{wildcards.dataset}/{wildcards.tool}/QUAST/") 
         # shell("/Users/ksahlin/_tmp/Optimal_k/./test_prgrm2.sh < {input.contigs} > {output.results}") 
 
         print("{0}".format(QUASTSTRING), file=open(output.results, 'w') )
@@ -284,17 +278,17 @@ rule QUAST:
 
 
 rule time_and_mem:
-    input:  stderr=OUTBASE+"{dataset}/{tool}/{method}.stderr" #rules.optimal_k_index.output.stderr, rules.optimal_k_sampling.output.stderr,rules.kmergenie.output.stderr #,
-    output: outfile=OUTBASE+"{dataset}/{tool}/{method}_time_and_mem.txt"
+    input:  stderr=config["OUTBASE"]+"{dataset}/{tool}/{method}.stderr" #rules.optimal_k_index.output.stderr, rules.optimal_k_sampling.output.stderr,rules.kmergenie.output.stderr #,
+    output: outfile=config["OUTBASE"]+"{dataset}/{tool}/{method}_time_and_mem.txt"
     run:
         usertime, wallclocktime, memory_gb =  parse_gnu_time(input.stderr)
         print("{0}\t{1}\t{2}\t{3}\t{4}\t{5}".format(wildcards.dataset, wildcards.tool, wildcards.method, usertime, wallclocktime, memory_gb), file=open(output.outfile, 'w') )
-        #shell("touch {OUTBASE}{wildcards.dataset}/{wildcards.tool}/{wildcards.method}_time_and_mem.txt ") 
+        #shell("touch {config["OUTBASE"]}{wildcards.dataset}/{wildcards.tool}/{wildcards.method}_time_and_mem.txt ") 
         
 
 rule performace_latex_table:
     input: files= myfunc  #rules.kmergenie.output.stderr, rules.optimal_k_index.output.stderr, rules.optimal_k_sampling.output.stderr
-    output: table=OUTBASE+"performance_table.tex"
+    output: table=config["OUTBASE"]+"performance_table.tex"
     run:
         table_file = open(output.table, 'w')
         print("{0} & {1} & {2} & {3} & {4} & {5} \\\ \hline".format('organism', 'tool','method', 'wall clock time', 'user time', 'peak memory'), file=table_file)
@@ -304,15 +298,14 @@ rule performace_latex_table:
             print("{0} & {1} & {2} & {3} & {4} & {5} \\\ \hline".format(*line.strip().split()), file=table_file)
 
 rule quality_latex_table:
-    input: expand(OUTBASE+"{dataset}/{tool}/result_metrics.csv",  dataset=DATASETS, tool=TOOLS)
-    output: table=OUTBASE+"quality_table.tex"
+    input: expand(config["OUTBASE"]+"{dataset}/{tool}/result_metrics.csv",  dataset=config["DATASETS"], tool=config["TOOLS"])
+    output: table=config["OUTBASE"]+"quality_table.tex"
     run:
-        #shell("touch {output.table}") 
         table_file = open(output.table, 'w')
         print("{0} & {1} & {2} & {3} & {4} & {5} & {6} \\\ \hline".format('organism', 'tool', 'E-size', 'genome size', 'N50', 'misassmblies', 'NA50'), file=table_file)
         for file_ in input:
             line=open(file_,'r').readlines()[0]
-            print("{0} & {1} & {2} & {3} & {4} & {5} & {6} \\\ \hline".format(*line.strip().split()))
+            #print("{0} & {1} & {2} & {3} & {4} & {5} & {6} \\\ \hline".format(*line.strip().split()))
             print("{0} & {1} & {2} & {3} & {4} & {5} & {6} \\\ \hline".format(*line.strip().split()), file=table_file)
 
 
