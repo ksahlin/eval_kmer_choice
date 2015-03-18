@@ -1,6 +1,6 @@
 DATASETS='staph rhodo plasm hs14 spruce'.split()
 TOOLS='optimal_k kmergenie'.split()
-METHODS='sampling index kmergenie'.split()
+METHODS='sampling index default'.split()
 INBASE='/Users/ksahlin/_tmp/Optimal_k/' # '/home/kris/Work/optimal_k/config/' # local testing: /Users/ksahlin/_tmp/Optimal_k/
 OUTBASE='/Users/ksahlin/_tmp/Optimal_k/OUT/' # '/proj/b2013169/private/data/optimal_k/' # local testing: /Users/ksahlin/_tmp/Optimal_k/OUT/
 
@@ -9,6 +9,31 @@ GNUTIME= "/usr/bin/time -lp" #"/usr/bin/time -v" #if Mac
 
 configfile: "config.json"
 
+STDERRSTRING="""
+    Command being timed: "optimal-k -r /home/kris/Work/optimal_k/kmergenie/input/spruce_subset.cfg -b /proj/b2013169/nobackup/optimal_k/index -o /tmp/optimal_k_subset.csv"
+    User time (seconds): 180706.80
+    System time (seconds): 1885.94
+    Percent of CPU this job got: 732%
+    Elapsed (wall clock) time (h:mm:ss or m:ss): 6:55:33
+    Average shared text size (kbytes): 0
+    Average unshared data size (kbytes): 0
+    Average stack size (kbytes): 0
+    Average total size (kbytes): 0
+    Maximum resident set size (kbytes): 423691152
+    Average resident set size (kbytes): 0
+    Major (requiring I/O) page faults: 6
+    Minor (reclaiming a frame) page faults: 583402290
+    Voluntary context switches: 1850827
+    Involuntary context switches: 1591152
+    Swaps: 0
+    File system inputs: 5608
+    File system outputs: 53109072
+    Socket messages sent: 0
+    Socket messages received: 0
+    Signals delivered: 0
+    Page size (bytes): 4096
+    Exit status: 0
+"""
 QUASTSTRING= """
 All statistics are based on contigs of size >= 500 bp, unless otherwise noted (e.g., "# contigs (>= 0 bp)" and "Total length (>= 0 bp)" include all contigs).
 
@@ -50,8 +75,9 @@ LA75                         3462            3462
 
 """
 
-#####################################
+##########################################
 # standard python functions
+##########################################
 
 import re
 import os
@@ -119,34 +145,35 @@ def parse_quast(quast_report):
     misassm = large_misassm + local_misassm
     return(misassm, N50, NA50, genome_size)
 
-def get_memory_and_runtime(stderr_file):
-    # lines = open(stderr_file, 'r').readlines()
-    # for line in lines:
-    #     if re.match(r"Total length \(\>\= 0 bp\)",line):
-    #         genome_size = int(line.strip().split()[5])
-    #     if re.match(r"N50",line):
-    #         N50 = int(line.strip().split()[1])
-    #     if re.match(r"NA50",line):
-    #         NA50 = int(line.strip().split()[1]) 
-    #     if re.match(r"# misassemblies",line):
-    #         large_misassm = int(line.strip().split()[2]) 
-    #     if re.match(r"# local misassemblies",line):
-    #         local_misassm = int(line.strip().split()[3]) 
+def  parse_gnu_time(stderr_file):
+    lines = open(stderr_file, 'r').readlines()
 
-    # misassm = large_misassm + local_misassm
-    # return(max_gb_used,user_time,sys_time, real_time)
-    return 0,0,0,0
+    for l in lines:
+        usertime_match =  re.search('User time \(seconds\): [\d.]+', l)
+        wct_match = re.search('Elapsed \(wall clock\) time \(h:mm:ss or m:ss\): [\d.:]+', l) 
+        mem_match = re.search('Maximum resident set size \(kbytes\): [\d.:]+', l) 
+        if usertime_match:
+            usertime = float(usertime_match.group().split(':')[1].strip())
+        if wct_match:
+            wallclocktime = wct_match.group().split()[7]
+        if mem_match:
+            mem_tmp = int(mem_match.group().split()[5])
+            memory_gb = mem_tmp / 4000000.0 
+
+    h,m,s = map(lambda x: int(x), wallclocktime.split(":") )
+    tot_wallclock_secs = h*3600 + m*60 + s
+    return usertime, tot_wallclock_secs, memory_gb
 
 def myfunc(wildcards):
     input_list_to_performace_latex_table = []
     for dataset in DATASETS:
-        input_list_to_performace_latex_table.append(OUTBASE+"{0}/kmergenie/kmergenie_time_and_mem.txt".format(dataset) )
+        input_list_to_performace_latex_table.append(OUTBASE+"{0}/kmergenie/default_time_and_mem.txt".format(dataset) )
         input_list_to_performace_latex_table.append(OUTBASE+"{0}/optimal_k/index_time_and_mem.txt".format(dataset) )
         input_list_to_performace_latex_table.append(OUTBASE+"{0}/optimal_k/sampling_time_and_mem.txt".format(dataset) )
     return input_list_to_performace_latex_table
 
-#####################################
-
+###########################################################
+###########################################################
 
 rule all:
     input:
@@ -167,6 +194,7 @@ rule optimal_k_index:
         # for testing on mac:
         shell("/usr/bin/time -lp touch {output.index} 1> {output.stdout} 2> {output.stderr} " )
         shell("touch {output.temp_csv}")
+        print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
         ###########
 
 rule optimal_k_sampling:
@@ -188,13 +216,14 @@ rule optimal_k_sampling:
         shell("echo 2 34 22 99 > {output.csv}")
         k,a = get_optimal_k_params(output.csv)
         shell("echo {0} {1} > {{output.best_params}} ".format(k,a))
+        print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
         ###########
 
 rule kmergenie:
     input: reads=INBASE+"{dataset}.cfg"
-    output: csv=OUTBASE+"{dataset}/kmergenie/kmergenie.dat",
-            stderr=OUTBASE+"{dataset}/kmergenie/kmergenie.stderr", 
-            stdout=OUTBASE+"{dataset}/kmergenie/kmergenie.stdout",
+    output: csv=OUTBASE+"{dataset}/kmergenie/default.dat",
+            stderr=OUTBASE+"{dataset}/kmergenie/default.stderr", 
+            stdout=OUTBASE+"{dataset}/kmergenie/default.stdout",
             best_params=OUTBASE+"{dataset}/kmergenie/best_params.txt"
     run:
         pass #print("hello")
@@ -208,7 +237,9 @@ rule kmergenie:
         # for testing on mac:
         shell("/usr/bin/time -lp touch {output.csv} 1> {output.stdout} 2> {output.stderr} " )
         shell("echo 1 3 19  > {output.csv}")
+        print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
         ###########
+
         k, a = get_kmer_genie_params(output.csv)
         shell("echo {0} {1} > {{output.best_params}} ".format(k,a))
 
@@ -216,9 +247,9 @@ rule kmergenie:
 rule unitiger:
     input:  reads=INBASE+"{dataset}.cfg", 
             params=OUTBASE+"{dataset}/{tool}/best_params.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
-    output: stdout=OUTBASE+"{dataset}/{tool}.unitiger.stdout",
-            stderr=OUTBASE+"{dataset}/{tool}.unitiger.stderr",
-            contigs=OUTBASE+"{dataset}/{tool}.unitiger.fa"
+    output: stdout=OUTBASE+"{dataset}/{tool}/unitiger.stdout",
+            stderr=OUTBASE+"{dataset}/{tool}/unitiger.stderr",
+            contigs=OUTBASE+"{dataset}/{tool}/unitiger.fa"
     run:
         k,a = get_k_and_a_for_assembler(input.params)
 
@@ -228,10 +259,12 @@ rule unitiger:
         # for testing on mac:
         shell("/usr/bin/time -lp touch {output.contigs} 1> {output.stdout} 2> {output.stderr} " )
         print("{0}\n{1}\n{2}\n{3}\n{4}\n{5}".format('>ctg1','ACGT','>ctg2','AA','>ctg3','C'), file=open(output.contigs, 'w') ) 
+        print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
+
         ###########
 
 rule QUAST:
-    input: contigs=OUTBASE+"{dataset}/{tool}.unitiger.fa"
+    input: contigs=OUTBASE+"{dataset}/{tool}/unitiger.fa"
     output: results=OUTBASE+"{dataset}/{tool}/QUAST/report.txt",
             nice_format=OUTBASE+"{dataset}/{tool}/result_metrics.csv"
     run:
@@ -241,7 +274,7 @@ rule QUAST:
         print("{0}".format(QUASTSTRING), file=open(output.results, 'w') )
         misassm, N50, NA50, tot_length = parse_quast(output.results)
         e_size = get_esize(input.contigs)
-        print("{0}\n{1}\n{2}\n{3}\n{4}".format(misassm, N50, NA50, tot_length, e_size), file=open(output.nice_format, 'w'))    
+        print("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}".format(wildcards.dataset, wildcards.tool, e_size, tot_length, N50, misassm,  NA50), file=open(output.nice_format, 'w'))    
         ###########
         # for testing on mac:
         #shell(" tou {output.results} " )
@@ -254,34 +287,43 @@ rule time_and_mem:
     input:  stderr=OUTBASE+"{dataset}/{tool}/{method}.stderr" #rules.optimal_k_index.output.stderr, rules.optimal_k_sampling.output.stderr,rules.kmergenie.output.stderr #,
     output: outfile=OUTBASE+"{dataset}/{tool}/{method}_time_and_mem.txt"
     run:
-        max_gb_used,user_time,sys_time, real_time = get_memory_and_runtime(input.stderr)
+        usertime, wallclocktime, memory_gb =  parse_gnu_time(input.stderr)
+        print("{0}\t{1}\t{2}\t{3}\t{4}\t{5}".format(wildcards.dataset, wildcards.tool, wildcards.method, usertime, wallclocktime, memory_gb), file=open(output.outfile, 'w') )
         #shell("touch {OUTBASE}{wildcards.dataset}/{wildcards.tool}/{wildcards.method}_time_and_mem.txt ") 
         
-        ###########
-        # for testing on mac:
-        shell(" touch {output.outfile} " )
-        ###########
 
 rule performace_latex_table:
     input: files= myfunc  #rules.kmergenie.output.stderr, rules.optimal_k_index.output.stderr, rules.optimal_k_sampling.output.stderr
     output: table=OUTBASE+"performance_table.tex"
     run:
-        #for file in input.files:
-        #    print("{0}{1}".format(shell("echo {input.file}"),'lol'))
-        shell("touch {output.table}") 
-
-        ###########
-        # for testing on mac:
-        shell(" touch {output.table}  " )
-        ###########
+        table_file = open(output.table, 'w')
+        print("{0} & {1} & {2} & {3} & {4} & {5} \\\ \hline".format('organism', 'tool','method', 'wall clock time', 'user time', 'peak memory'), file=table_file)
+        for file_ in input.files:
+            line=open(file_,'r').readlines()[0]
+            #print("{0} & {1} & {2} & {3} & {4} & {5} \\\ \hline".format(*line.strip().split()))
+            print("{0} & {1} & {2} & {3} & {4} & {5} \\\ \hline".format(*line.strip().split()), file=table_file)
 
 rule quality_latex_table:
     input: expand(OUTBASE+"{dataset}/{tool}/result_metrics.csv",  dataset=DATASETS, tool=TOOLS)
     output: table=OUTBASE+"quality_table.tex"
     run:
-        shell("touch {output.table}") 
+        #shell("touch {output.table}") 
+        table_file = open(output.table, 'w')
+        print("{0} & {1} & {2} & {3} & {4} & {5} & {6} \\\ \hline".format('organism', 'tool', 'E-size', 'genome size', 'N50', 'misassmblies', 'NA50'), file=table_file)
+        for file_ in input:
+            line=open(file_,'r').readlines()[0]
+            print("{0} & {1} & {2} & {3} & {4} & {5} & {6} \\\ \hline".format(*line.strip().split()))
+            print("{0} & {1} & {2} & {3} & {4} & {5} & {6} \\\ \hline".format(*line.strip().split()), file=table_file)
 
-        ###########
-        # for testing on mac:
-        shell(" touch {output.table}  " )
-        ###########
+
+
+
+# rule clean:
+#     input:
+#     output:
+#     run:
+
+# rule test:
+#     input:
+#     output:
+#     run:
