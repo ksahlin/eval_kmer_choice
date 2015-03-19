@@ -1,5 +1,5 @@
  
-configfile: "config.json"
+configfile: "config_uppmax.json"
 
 STDERRSTRING="""
     Command being timed: "optimal-k -r /home/kris/Work/optimal_k/kmergenie/input/spruce_subset.cfg -b /proj/b2013169/nobackup/optimal_k/index -o /tmp/optimal_k_subset.csv"
@@ -67,9 +67,9 @@ LA75                         3462            3462
 
 """
 
-##########################################
-# standard python functions
-##########################################
+####################################################
+########## standard python functions ###############
+####################################################
 
 import re
 import os
@@ -77,7 +77,8 @@ def get_kmer_genie_params(csv_file_path):
     max_genomic_kmers = 0
     best_k = 0
     best_a = 0
-    for line in open(csv_file_path, 'r'):
+    lines = open(csv_file_path, 'r').readlines()
+    for line in lines[1:]: # removed header
         k,nr_genomic_kmers, a = map(lambda x: int(x), line.strip().split())
         if nr_genomic_kmers > max_genomic_kmers:
             max_genomic_kmers = nr_genomic_kmers
@@ -89,7 +90,8 @@ def get_optimal_k_params(csv_file_path):
     max_genomic_kmers = 0
     best_k = 0
     best_a = 0
-    for line in open(csv_file_path, 'r'):
+    lines = open(csv_file_path, 'r').readlines()
+    for line in lines[1:]: # removed header
         vals = line.strip().split()
         k,nr_genomic_kmers, a = int(vals[0]), int(vals[1]), int(vals[2]) 
         if nr_genomic_kmers > max_genomic_kmers:
@@ -180,11 +182,12 @@ rule optimal_k_index:
             temp_csv=temp("/tmp/{dataset}/index.csv")
     run:
         time=config["GNUTIME"]
-        #shell(" {time} optimal-k -r {input.reads}  --buildindex {output.index} -o {output.temp_csv} 1> {output.stdout} 2> {output.stderr}")
+        shell(" {time} optimal-k -r {input.reads}  --buildindex {output.index} -o {output.temp_csv} 1> {output.stdout} 2> {output.stderr}")
 
         ###########
         # for testing on mac:
-        shell("/usr/bin/time -lp touch {output.index} 1> {output.stdout} 2> {output.stderr} " )
+        #shell("/usr/bin/time -lp touch {output.index} 1> {output.stdout} 2> {output.stderr} " )
+        shell("touch {output.index}")
         shell("touch {output.temp_csv}")
         print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
         ###########
@@ -197,19 +200,19 @@ rule optimal_k_sampling:
             best_params=config["OUTBASE"]+"{dataset}/optimal_k/best_params.txt"
     run:
         time=config["GNUTIME"]
-        # shell(" {time} optimal-k -r {input.reads}  --loadindex {input.index} -a 1 -A 5 -o {output.csv} 1> {output.stdout} 2> {output.stderr}")
-        # for result_file in config["OUTBASE"]+"{dataset}/sampling":
-        #     k,a = parse_file_here()
+        shell(" {time} optimal-k -r {input.reads}  --loadindex {input.index} -a 1 -A 5 -o {output.csv} 1> {output.stdout} 2> {output.stderr}")
+
 
         # print("{{0}}\t{{1}}".format(k,a),output.best_params)
         ###########
         # for testing on mac:
-        shell("/usr/bin/time -lp touch {output.csv} 1> {output.stdout} 2> {output.stderr} " )
+        #shell("/usr/bin/time -lp touch {output.csv} 1> {output.stdout} 2> {output.stderr} " )
         shell("echo 2 34 22 99 > {output.csv}")
-        k,a = get_optimal_k_params(output.csv)
-        shell("echo {0} {1} > {{output.best_params}} ".format(k,a))
         print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
         ###########
+
+        k,a = get_optimal_k_params(output.csv)
+        shell("echo {0} {1} > {{output.best_params}} ".format(k,a))
 
 rule kmergenie:
     input: reads=config["INBASE"]+"{dataset}.cfg"
@@ -218,23 +221,26 @@ rule kmergenie:
             stdout=config["OUTBASE"]+"{dataset}/kmergenie/default.stdout",
             best_params=config["OUTBASE"]+"{dataset}/kmergenie/best_params.txt"
     run:
-        env=config["PYTHON2"]
-        time=config["GNUTIME"]
-        # shell(" {time} {env} kmergenie -o {config["OUTBASE"]}{wildcards.dataset}/kmergenie {input.reads} 1> {output.stdout} 2> {output.stderr}")
-        # for result_file in config["OUTBASE"]+"{dataset}/kmergenie":
-        #     k,a = parse_file_here()
+        env = config["LOAD_PYTHON_ENV"]
+        shell("{env}")
+        time = config["GNUTIME"]
+        out = config["OUTBASE"]
+        python = config["PYTHON2"]
+        path=config["kmergenie_rules"]["path"]
+        shell(" {time} {python} {path}kmergenie -o {out}{wildcards.dataset}/kmergenie/default {input.reads} 1> {output.stdout} 2> {output.stderr}")
+        k, a = get_kmer_genie_params(output.csv)
+        shell("echo {0} {1} > {{output.best_params}} ".format(k,a))
 
         # print("{{0}}\t{{1}}".format(k,a),output.best_params)
 
         ###########
         # for testing on mac:
-        shell("/usr/bin/time -lp touch {output.csv} 1> {output.stdout} 2> {output.stderr} " )
-        shell("echo 1 3 19  > {output.csv}")
-        print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
+        # shell("/usr/bin/time -lp touch {output.csv} 1> {output.stdout} 2> {output.stderr} " )
+        # shell("echo 1 3 19  > {output.csv}")
+        #print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
         ###########
 
-        k, a = get_kmer_genie_params(output.csv)
-        shell("echo {0} {1} > {{output.best_params}} ".format(k,a))
+
 
 
 rule unitiger:
@@ -244,13 +250,13 @@ rule unitiger:
             stderr=config["OUTBASE"]+"{dataset}/{tool}/unitiger.stderr",
             contigs=config["OUTBASE"]+"{dataset}/{tool}/unitiger.fa"
     run:
+        time=config["GNUTIME"]
         k,a = get_k_and_a_for_assembler(input.params)
-
-        # shell("unitiger {{input.reads}} {0} {1} 1> {{output.stats}}".format(k,a))   
+        shell("{time} unitiger -r {{input.reads}} -o {{output.contigs}} -k {0} -a {1} 1> {{output.stdout}} 2> {{output.stderr}}".format(k,a))   
 
         ###########
         # for testing on mac:
-        shell("/usr/bin/time -lp touch {output.contigs} 1> {output.stdout} 2> {output.stderr} " )
+        #shell("/usr/bin/time -lp touch {output.contigs} 1> {output.stdout} 2> {output.stderr} " )
         print("{0}\n{1}\n{2}\n{3}\n{4}\n{5}".format('>ctg1','ACGT','>ctg2','AA','>ctg3','C'), file=open(output.contigs, 'w') ) 
         print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
 

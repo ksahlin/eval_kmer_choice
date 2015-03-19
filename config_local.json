@@ -1,0 +1,17 @@
+{
+
+    "kmergenie_rules" : {
+    	"path" : "/Users/ksahlin/source/kmergenie-1.6663/"
+    },
+
+    "DATASETS" : ["staph", "rhodo", "plasm", "hs14", "spruce"],
+    "TOOLS" :["optimal_k", "kmergenie"],
+
+    "METHODS" : ["sampling", "index", "default"],
+	"INBASE" : "/Users/ksahlin/_tmp/Optimal_k/", 
+	"OUTBASE" : "/Users/ksahlin/_tmp/Optimal_k/OUT/", 
+	"LOAD_PYTHON_ENV" : "pyenv global system 3.4.1",
+	"PYTHON2" : "python2.7",
+	"GNUTIME" : "/usr/bin/time -lp"
+ 
+}
