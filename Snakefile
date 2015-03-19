@@ -269,7 +269,11 @@ rule QUAST:
     run:
         out=config['OUTBASE']
         shell("mkdir -p {out}/{wildcards.dataset}/{wildcards.tool}/QUAST/") 
-        # shell("/Users/ksahlin/_tmp/Optimal_k/./test_prgrm2.sh < {input.contigs} > {output.results}") 
+        reference = config["references"][wildcards.dataset]
+        if wildcards.dataset == "spruce":
+            shell("QUAST {input.contigs} -o {output.results}") 
+        else:
+            shell("QUAST -R    {input.contigs} -o {output.results}") 
 
         print("{0}".format(QUASTSTRING), file=open(output.results, 'w') )
         misassm, N50, NA50, tot_length = parse_quast(output.results)

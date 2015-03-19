@@ -3,7 +3,10 @@
     "kmergenie_rules" : {
     	"path" : "/home/kris/source/kmergenie-1.6950/"
     },
-
+    "quast_rules" : {
+        "path" : "/home/kris/source/quast-2.3/"
+    },
+    
     "DATASETS" : ["staph", "rhodo", "plasm", "hs14", "spruce"],
     "TOOLS" :["optimal_k", "kmergenie"],
 

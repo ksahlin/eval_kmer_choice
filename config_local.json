@@ -3,9 +3,16 @@
     "kmergenie_rules" : {
     	"path" : "/Users/ksahlin/source/kmergenie-1.6663/"
     },
+    "quast_rules" : {
+        "path" : "/Users/ksahlin/source/quast-2.3/"
+    },
 
     "DATASETS" : ["staph", "rhodo", "plasm", "hs14", "spruce"],
     "TOOLS" :["optimal_k", "kmergenie"],
+    "REFERENCES" :{
+            "staph" : "/Users/ksahlin/_tmp/Optimal_k/refs/staph.fa",
+            "rhodo" : "/Users/ksahlin/_tmp/Optimal_k/refs/rhodo.fa"
+    }
 
     "METHODS" : ["sampling", "index", "default"],
 	"INBASE" : "/Users/ksahlin/_tmp/Optimal_k/", 
