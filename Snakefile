@@ -258,10 +258,9 @@ rule optimal_k_index:
     output: index=config["OUTBASE"]+"{dataset}/optimal_k/index", 
             stderr=config["OUTBASE"]+"{dataset}/optimal_k/index.stderr", 
             stdout=config["OUTBASE"]+"{dataset}/optimal_k/index.stdout",
-            temp_csv=temp("/tmp/{dataset}/index.csv")
     run:
         time=config["GNUTIME"]
-        shell(" {time} optimal-k -r {input.reads}  --buildindex {output.index} -o {output.temp_csv} 1> {output.stdout} 2> {output.stderr}")
+        shell(" {time} optimal-k -r {input.reads}  --buildindex {output.index} 1> {output.stdout} 2> {output.stderr}")
 
         ###########
         # for testing on mac:
