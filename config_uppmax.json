@@ -4,13 +4,25 @@
     	"path" : "/home/kris/source/kmergenie-1.6950/"
     },
     "quast_rules" : {
-        "path" : "/home/kris/source/quast-2.3/"
+        "path" : "/home/kris/source/quast-2.3/",
+        "min_contig" : "200"
     },
-    
+    "optimal_k_rules" : {
+        "min_abundance" : "1",
+        "max_abundance" : "5"
+    },
+    "REFERENCES" :{
+            "staph" : "/proj/b2013169/private/data/genomes/staph/ref/genome.fasta",
+            "rhodo" : "/proj/b2013169/private/data/genomes/rhodo/ref/genome.fasta",
+            "plasm" : "/proj/b2013169/private/data/genomes/plasm/ref/genome.fasta",            
+            "hs14" : "/proj/b2013169/private/data/genomes/hs14/ref/genome.fasta",
+            "spruce" : ""
+    },
+
     "DATASETS" : ["staph", "rhodo", "plasm", "hs14", "spruce"],
     "TOOLS" :["optimal_k", "kmergenie"],
-
     "METHODS" : ["sampling", "index", "default"],
+    "ASSEMBLERS" : ["unitiger", "minia"],
 	"LOAD_PYTHON_ENV" : "pyenv global system 3.4.1",
   	"INBASE" : "/home/kris/Work/optimal_k/config/", 
 	"OUTBASE" : "/proj/b2013169/private/data/optimal_k/", 

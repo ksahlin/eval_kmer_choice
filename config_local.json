@@ -4,17 +4,25 @@
     	"path" : "/Users/ksahlin/source/kmergenie-1.6663/"
     },
     "quast_rules" : {
-        "path" : "/Users/ksahlin/source/quast-2.3/"
+        "path" : "/Users/ksahlin/source/quast-2.3/",
+        "min_contig" : "200"
+    },
+    "optimal_k_rules" : {
+        "min_abundance" : "1",
+        "max_abundance" : "5"
+    },
+    "REFERENCES" :{
+            "staph" : "/Users/ksahlin/_tmp/Optimal_k/refs/staph.fa",
+            "rhodo" : "/Users/ksahlin/_tmp/Optimal_k/refs/rhodo.fa",
+            "plasm" : "/Users/ksahlin/_tmp/Optimal_k/refs/plasm.fa",            
+            "hs14" : "/Users/ksahlin/_tmp/Optimal_k/refs/hs14.fa",
+            "spruce" : ""
     },
 
     "DATASETS" : ["staph", "rhodo", "plasm", "hs14", "spruce"],
     "TOOLS" :["optimal_k", "kmergenie"],
-    "REFERENCES" :{
-            "staph" : "/Users/ksahlin/_tmp/Optimal_k/refs/staph.fa",
-            "rhodo" : "/Users/ksahlin/_tmp/Optimal_k/refs/rhodo.fa"
-    }
-
     "METHODS" : ["sampling", "index", "default"],
+    "ASSEMBLERS" : ["unitiger", "minia"],
 	"INBASE" : "/Users/ksahlin/_tmp/Optimal_k/", 
 	"OUTBASE" : "/Users/ksahlin/_tmp/Optimal_k/OUT/", 
 	"LOAD_PYTHON_ENV" : "pyenv global system 3.4.1",

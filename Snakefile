@@ -67,6 +67,79 @@ LA75                         3462            3462
 
 """
 
+OPTIMAL_K_CSV =  """k,a,nr_nodes,nr_edges,avg_internal_nodes,avg_length_unitigs,est_sample_size,nr_unitigs,e_size
+15,3,437352359,.,0.00358669,16.0036,464,1.60754e+09,16
+16,3,1216502641,.,0.0109691,17.011,100313,3.75641e+09,17.0002
+17,3,2443481585,.,0.0488373,18.0488,35368,5.82534e+09,18.0464
+18,3,3768844239,.,0.182801,19.1828,17191,5.99015e+09,19.2521
+19,3,4704694437,.,0.546444,20.5464,10865,4.36806e+09,20.6209
+20,3,5211940469,.,1.30607,22.3061,9197,2.77122e+09,22.5209
+21,3,5665059339,.,2.29156,24.2916,14520,1.95253e+09,27.0185
+22,3,6122024152,.,3.3553,26.3553,20489,1.5399e+09,31.1681
+23,3,6313373920,.,4.21291,28.2129,25727,1.30167e+09,30.9663
+24,3,6567472278,.,4.71688,29.7169,30086,1.22502e+09,34.98
+25,3,6785297598,.,4.98792,30.9879,31546,1.20132e+09,34.9378
+26,3,7024418450,.,5.40689,32.4069,31720,1.15555e+09,49.4987
+27,3,7221929603,.,5.86643,33.8664,32518,1.10085e+09,39.7129
+28,3,7447682542,.,6.30231,35.3023,33656,1.06454e+09,40.1304
+29,3,7539847126,.,6.91963,36.9196,34303,9.8899e+08,40.6148
+30,3,7690333419,.,7.19395,38.1939,36400,9.7111e+08,43.1674
+31,3,7787962384,.,7.47512,39.4751,36514,9.48968e+08,44.2661
+32,3,7864607027,.,7.86582,40.8658,36798,9.12671e+08,52.7146
+33,3,7986105483,.,8.36688,42.3669,37677,8.72602e+08,51.3415
+34,3,8169930991,.,8.93188,43.9319,38798,8.40919e+08,52.0367
+35,3,8219392645,.,9.37237,45.3724,39623,8.07662e+08,51.1146
+36,3,8231085100,.,9.91595,46.9159,40593,7.67035e+08,53.4829
+37,3,8268502254,.,10.1374,48.1374,42050,7.53975e+08,55.4124
+38,3,8289915001,.,10.7897,49.7897,42059,7.10986e+08,66.9164
+39,3,8385132393,.,11.0446,51.0446,43856,7.0225e+08,58.4082
+40,3,8258890510,.,11.0619,52.0619,43627,6.90701e+08,60.505
+41,3,8254125823,.,11.7644,53.7644,43571,6.50215e+08,61.9607
+42,3,8224185878,.,11.9208,54.9208,45466,6.38854e+08,58.88
+43,3,8202666475,.,12.5658,56.5658,45425,6.05024e+08,70.5345
+44,3,8145177434,.,13.0641,58.0641,47082,5.78001e+08,64.6231
+45,3,8088032675,.,13.1284,59.1284,48355,5.71473e+08,74.3066
+46,3,8037344669,.,13.4943,60.4943,47954,5.52152e+08,74.7161
+47,3,7938712600,.,13.6505,61.6505,48654,5.39269e+08,66.2646
+48,3,7821017762,.,13.6594,62.6594,48811,5.29512e+08,73.9954
+49,3,7713731781,.,13.6663,63.6663,48684,5.21706e+08,75.5299
+50,3,7595217688,.,14.0146,65.0146,48370,5.00709e+08,74.6965
+51,3,7503177547,.,14.4534,66.4534,49321,4.7952e+08,76.5618
+52,3,7347297344,.,14.2832,67.2832,50376,4.74276e+08,77.4555
+53,3,7194314832,.,14.1638,68.1638,49784,4.66927e+08,78.3002
+54,3,7033237869,.,13.8036,68.8036,49402,4.66858e+08,79.1174
+55,3,6857146979,.,14.4255,70.4255,48237,4.36629e+08,75.7662
+56,3,6675288775,.,14.68,71.68,50350,4.17033e+08,85.6819
+57,3,6542615072,.,14.0498,72.0498,51422,4.24712e+08,82.6553
+58,3,6329028753,.,14.3668,73.3668,49197,4.01944e+08,79.7925
+59,3,6157790792,.,14.1499,74.1499,50644,3.95916e+08,79.683
+60,3,5975523577,.,13.7698,74.7698,50039,3.93178e+08,79.587
+61,3,5794708388,.,13.9073,75.9073,48998,3.77565e+08,79.5925
+62,3,5579471311,.,13.748,76.748,49591,3.6622e+08,80.8042
+63,3,5378535529,.,13.4555,77.4555,49645,3.59955e+08,83.5624
+64,3,5175042627,.,12.9112,77.9112,48995,3.59008e+08,82.7664
+65,3,4973971800,.,12.7409,78.7409,47601,3.48534e+08,82.9562
+66,3,4750674167,.,12.8302,79.8302,47473,3.2996e+08,84.3142
+67,3,4516125031,.,12.3665,80.3665,48509,3.23811e+08,82.5627
+68,3,4313067214,.,11.9531,80.9531,47748,3.18811e+08,85.0652
+69,3,4098827816,.,11.5729,81.5729,46786,3.11285e+08,84.5252
+70,3,3898831540,.,11.1252,82.1252,46169,3.06269e+08,86.0131
+71,3,3671677869,.,11.2897,83.2897,45144,2.83891e+08,86.1643
+72,3,3453354418,.,10.8683,83.8683,46806,2.756e+08,85.271
+73,3,3242878142,.,10.1872,84.1872,46240,2.737e+08,86.6188
+74,3,3035289562,.,9.85378,84.8538,44564,2.63183e+08,86.3265
+75,3,2824665810,.,9.39888,85.3989,44281,2.54992e+08,86.4971
+76,3,2612059392,.,9.28966,86.2897,43570,2.37719e+08,87.5998
+77,3,2419349767,.,8.84682,86.8468,44462,2.29105e+08,88.1281
+78,3,2219116990,.,8.31198,87.312,43760,2.21631e+08,89.1473
+79,3,2027339366,.,7.81151,87.8115,42780,2.12786e+08,89.207
+80,3,1842703978,.,7.38636,88.3864,42002,2.03048e+08,89.2883
+81,3,1668872886,.,7.30262,89.3026,41340,1.84382e+08,90.6264
+82,3,1491715339,.,6.81901,89.819,42596,1.74221e+08,91.3292
+83,3,1326779450,.,6.28336,90.2834,41962,1.6536e+08,90.7131
+84,3,1169431071,.,5.84098,90.841,40922,1.54643e+08,91.7433
+85,3,1025375006,.,5.46153,91.4615,40247,1.42995e+08,91.9885"""
+
 ####################################################
 ########## standard python functions ###############
 ####################################################
@@ -87,18 +160,17 @@ def get_kmer_genie_params(csv_file_path):
     return best_k, best_a
 
 def get_optimal_k_params(csv_file_path):
-    max_genomic_kmers = 0
+    max_objective = 0
     best_k = 0
-    best_a = 0
     lines = open(csv_file_path, 'r').readlines()
     for line in lines[1:]: # removed header
-        vals = line.strip().split()
-        k,nr_genomic_kmers, a = int(vals[0]), int(vals[1]), int(vals[2]) 
-        if nr_genomic_kmers > max_genomic_kmers:
-            max_genomic_kmers = nr_genomic_kmers
+        vals = line.strip().split(',')
+        k,nr_genomic_kmers, e_size = int(vals[0]), int(vals[2]), float(vals[8]) 
+        objective = nr_genomic_kmers*e_size
+        if objective > max_objective:
+            max_objective = objective
             best_k = k
-            best_a = a
-    return best_k, best_a
+    return best_k , max_objective
 
 def get_k_and_a_for_assembler(csv_file_path):
     line = open(csv_file_path, 'r').readlines()[0]
@@ -124,6 +196,7 @@ def get_esize(fastafile):
 
 def parse_quast(quast_report):
     lines = open(quast_report, 'r').readlines()
+    has_ref = False
     for line in lines:
         if re.match(r"Total length \(\>\= 0 bp\)",line):
             genome_size = int(line.strip().split()[5])
@@ -131,13 +204,19 @@ def parse_quast(quast_report):
             N50 = int(line.strip().split()[1])
         if re.match(r"NA50",line):
             NA50 = int(line.strip().split()[1]) 
+            has_ref = True
         if re.match(r"# misassemblies",line):
             large_misassm = int(line.strip().split()[2]) 
+            has_ref = True
         if re.match(r"# local misassemblies",line):
             local_misassm = int(line.strip().split()[3]) 
+            has_ref = True
 
-    misassm = large_misassm + local_misassm
-    return(misassm, N50, NA50, genome_size)
+    if has_ref:
+        misassm = large_misassm + local_misassm
+        return(misassm, N50, NA50, genome_size)
+    else:
+        return('.', N50, '.', genome_size)
 
 def  parse_gnu_time(stderr_file):
     lines = open(stderr_file, 'r').readlines()
@@ -172,7 +251,7 @@ def myfunc(wildcards):
 rule all:
     input:
         config["OUTBASE"]+"performance_table.tex",        
-        config["OUTBASE"]+"quality_table.tex"
+        expand(config["OUTBASE"]+"quality_table_{assembler}.tex", assembler=config["ASSEMBLERS"])
 
 rule optimal_k_index:
     input: reads=config["INBASE"]+"{dataset}.cfg"
@@ -196,23 +275,37 @@ rule optimal_k_sampling:
     input: reads=config["INBASE"]+"{dataset}.cfg", index=config["OUTBASE"]+"{dataset}/optimal_k/index"
     output: stderr=config["OUTBASE"]+"{dataset}/optimal_k/sampling.stderr", 
             stdout=config["OUTBASE"]+"{dataset}/optimal_k/sampling.stdout",
-            csv=config["OUTBASE"]+"{dataset}/optimal_k/sampling.csv",
             best_params=config["OUTBASE"]+"{dataset}/optimal_k/best_params.txt"
     run:
         time=config["GNUTIME"]
-        shell(" {time} optimal-k -r {input.reads}  --loadindex {input.index} -a 1 -A 5 -o {output.csv} 1> {output.stdout} 2> {output.stderr}")
+        prefix=config["OUTBASE"]+"{0}/optimal_k/sampling".format(wildcards.dataset)
+        min_a = config["optimal_k_rules"]["min_abundance"]
+        max_a = config["optimal_k_rules"]["max_abundance"]
+
+        shell(" {time} optimal-k -r {input.reads}  --loadindex {input.index} -a {min_a} -A {max_a} -o {prefix} 1> {output.stdout} 2> {output.stderr}")
 
 
-        # print("{{0}}\t{{1}}".format(k,a),output.best_params)
         ###########
         # for testing on mac:
-        #shell("/usr/bin/time -lp touch {output.csv} 1> {output.stdout} 2> {output.stderr} " )
-        shell("echo 2 34 22 99 > {output.csv}")
+        print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a1.csv', 'w') ) 
+        print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a2.csv', 'w') ) 
+        print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a3.csv', 'w') ) 
+        print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a4.csv', 'w') ) 
+        print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a5.csv', 'w') ) 
         print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
         ###########
 
-        k,a = get_optimal_k_params(output.csv)
-        shell("echo {0} {1} > {{output.best_params}} ".format(k,a))
+        max_objective = 0
+        best_k = 0
+        best_a = 0
+        for abundance in range(int(min_a),int(max_a)):
+            k, objective = get_optimal_k_params(prefix+".a{0}.csv".format(abundance))
+            if objective > max_objective:
+                best_k = k
+                best_a = abundance
+                max_objective = objective
+
+        shell("echo {0} {1} > {{output.best_params}} ".format(best_k,best_a))
 
 rule kmergenie:
     input: reads=config["INBASE"]+"{dataset}.cfg"
@@ -235,8 +328,6 @@ rule kmergenie:
 
         ###########
         # for testing on mac:
-        # shell("/usr/bin/time -lp touch {output.csv} 1> {output.stdout} 2> {output.stderr} " )
-        # shell("echo 1 3 19  > {output.csv}")
         #print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
         ###########
 
@@ -248,42 +339,69 @@ rule unitiger:
             params=config["OUTBASE"]+"{dataset}/{tool}/best_params.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
     output: stdout=config["OUTBASE"]+"{dataset}/{tool}/unitiger.stdout",
             stderr=config["OUTBASE"]+"{dataset}/{tool}/unitiger.stderr",
-            contigs=config["OUTBASE"]+"{dataset}/{tool}/unitiger.fa"
+            unitigs=config["OUTBASE"]+"{dataset}/{tool}/unitiger.fasta"
     run:
-        time=config["GNUTIME"]
+        time = config["GNUTIME"]
+        prefix=config["OUTBASE"]+"{0}/{1}/unitiger".format(wildcards.dataset, wildcards.tool)
         k,a = get_k_and_a_for_assembler(input.params)
-        shell("{time} unitiger -r {{input.reads}} -o {{output.contigs}} -k {0} -a {1} 1> {{output.stdout}} 2> {{output.stderr}}".format(k,a))   
+        #shell("{time} unitiger -r {input.reads} -o {prefix} -k {k} -K {k} -a {a} -A {a} 1> {output.stdout} 2> {output.stderr}")   
+        shell("mv {0} {1}".format(prefix+".unitigs", prefix+'.fasta'))
 
         ###########
         # for testing on mac:
-        #shell("/usr/bin/time -lp touch {output.contigs} 1> {output.stdout} 2> {output.stderr} " )
-        print("{0}\n{1}\n{2}\n{3}\n{4}\n{5}".format('>ctg1','ACGT','>ctg2','AA','>ctg3','C'), file=open(output.contigs, 'w') ) 
-        print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
 
+        print("{0}\n{1}\n{2}\n{3}\n{4}\n{5}".format('>ctg1','CTAGCTCTACGTCACTCACGCCCCGCTTTCTATTGATGGAAGTCGTCTAATTCACTATAACAGCGAATCGGGGCCCCTCAGCCCATATGCTGAGCCCTCCTGTACGTGATCTATACTGGCTTTTAATACAGAAGGCCACCACTA',\
+            '>ctg2','CCCTAGCACCGTCACTCTATTTTGTACCCTTGAACTTCTCGACATTCTATTTCGGCCAGGCGTACAAACCTGCGGTGATGGGCCTGCTAAACACCACC',\
+            '>ctg3','CGGCGAAGCTTAGGCGCTTCAAAAGCCAAAACATCAACGATGGTTCGCCGGGGGTGACGCCTTACCTATCTAGCGTGCGTCGCGTGATGCACGCTGGCATTGAGGTGAATTCGGCCTAGGATGCTTAATCAGAGCATGTTCCATCGTTAGCGGCTGCCAGGAAGGTGGTATATCACCTCCGGGGTGGTCAAAAATGGGGTCGC'),\
+             file=open(prefix+".fasta", 'w') ) 
+        print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
+        print("{0}".format(STDERRSTRING), file=open(output.stdout, 'w') ) 
+        ###########
+
+rule minia:
+    input:  reads=config["INBASE"]+"{dataset}.cfg", 
+            params=config["OUTBASE"]+"{dataset}/{tool}/best_params.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
+    output: stdout=config["OUTBASE"]+"{dataset}/{tool}/minia.stdout",
+            stderr=config["OUTBASE"]+"{dataset}/{tool}/minia.stderr",
+            contigs=config["OUTBASE"]+"{dataset}/{tool}/minia.fasta"
+    run:
+        time = config["GNUTIME"]
+        prefix=config["OUTBASE"]+"{0}/{1}/minia".format(wildcards.dataset, wildcards.tool)
+        k,a = get_k_and_a_for_assembler(input.params)
+        shell("{time} minia {input.reads} {k} {a} -o {prefix} 1> {output.stdout} 2> {output.stderr}")   
+        shell("mv {0} {1}".format(prefix+".contigs.fa", prefix+'.fasta'))
+        ###########
+        # for testing on mac:
+
+        print("{0}\n{1}\n{2}\n{3}\n{4}\n{5}".format('>ctg1','CTAGCTCTACGTCACTCACGCCCCGCTTTCTATTGATGGAAGTCGTCTAATTCACTATAACAGCGAATCGGGGCCCCTCAGCCCATATGCTGAGCCCTCCTGTACGTGATCTATACTGGCTTTTAATACAGAAGGCCACCACTA',\
+            '>ctg2','CCCTAGCACCGTCACTCTATTTTGTACCCTTGAACTTCTCGACATTCTATTTCGGCCAGGCGTACAAACCTGCGGTGATGGGCCTGCTAAACACCACC',\
+            '>ctg3','CGGCGAAGCTTAGGCGCTTCAAAAGCCAAAACATCAACGATGGTTCGCCGGGGGTGACGCCTTACCTATCTAGCGTGCGTCGCGTGATGCACGCTGGCATTGAGGTGAATTCGGCCTAGGATGCTTAATCAGAGCATGTTCCATCGTTAGCGGCTGCCAGGAAGGTGGTATATCACCTCCGGGGTGGTCAAAAATGGGGTCGC'),\
+             file=open(prefix+".contigs.fa", 'w') ) 
+        print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
+        print("{0}".format(STDERRSTRING), file=open(output.stdout, 'w') ) 
         ###########
 
 rule QUAST:
-    input: contigs=config["OUTBASE"]+"{dataset}/{tool}/unitiger.fa"
-    output: results=config["OUTBASE"]+"{dataset}/{tool}/QUAST/report.txt",
-            nice_format=config["OUTBASE"]+"{dataset}/{tool}/result_metrics.csv"
+    input: contigs=config["OUTBASE"]+"{dataset}/{tool}/{assembler}.fasta"
+    output: #results=config["OUTBASE"]+"{dataset}/{tool}/QUAST/report.txt",
+            nice_format=config["OUTBASE"]+"{dataset}/{tool}/result_metrics_{assembler}.csv"
     run:
+        env = config["LOAD_PYTHON_ENV"]
+        shell("{env}")
+        python = config["PYTHON2"]
         out=config['OUTBASE']
-        shell("mkdir -p {out}/{wildcards.dataset}/{wildcards.tool}/QUAST/") 
-        reference = config["references"][wildcards.dataset]
+        path=config["quast_rules"]["path"]
+        min_contig =  config["quast_rules"]["min_contig"]
+        outpath="{0}/{1}/{2}/{3}/QUAST/".format(out, wildcards.dataset,wildcards.tool, wildcards.assembler)
+        reference = config["REFERENCES"][wildcards.dataset]
         if wildcards.dataset == "spruce":
-            shell("QUAST {input.contigs} -o {output.results}") 
+            shell(" {python} {path}quast.py -o {outpath} --min-contig 30 --no-plots {input.contigs}") 
         else:
-            shell("QUAST -R    {input.contigs} -o {output.results}") 
+            shell(" {python} {path}quast.py -R  {reference} -o {outpath} --min-contig 30 --no-plots {input.contigs} ") 
 
-        print("{0}".format(QUASTSTRING), file=open(output.results, 'w') )
-        misassm, N50, NA50, tot_length = parse_quast(output.results)
+        misassm, N50, NA50, tot_length = parse_quast(outpath+"report.txt")
         e_size = get_esize(input.contigs)
         print("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}".format(wildcards.dataset, wildcards.tool, e_size, tot_length, N50, misassm,  NA50), file=open(output.nice_format, 'w'))    
-        ###########
-        # for testing on mac:
-        #shell(" tou {output.results} " )
-        ###########
-
 
 
 
@@ -308,11 +426,11 @@ rule performace_latex_table:
             print("{0} & {1} & {2} & {3} & {4} & {5} \\\ \hline".format(*line.strip().split()), file=table_file)
 
 rule quality_latex_table:
-    input: expand(config["OUTBASE"]+"{dataset}/{tool}/result_metrics.csv",  dataset=config["DATASETS"], tool=config["TOOLS"])
-    output: table=config["OUTBASE"]+"quality_table.tex"
+    input: map(lambda x: x+"{assembler}.csv", expand(config["OUTBASE"]+"{dataset}/{tool}/result_metrics_",  dataset=config["DATASETS"], tool=config["TOOLS"]) ) 
+    output: table=config["OUTBASE"]+"quality_table_{assembler}.tex"
     run:
         table_file = open(output.table, 'w')
-        print("{0} & {1} & {2} & {3} & {4} & {5} & {6} \\\ \hline".format('organism', 'tool', 'E-size', 'genome size', 'N50', 'misassmblies', 'NA50'), file=table_file)
+        print("{0} & {1} & {2} & {3} & {4} & {5} & {6} \\\ \hline".format('organism', 'tool', 'E-size', 'esitmated genome size', 'N50', 'misassmblies', 'NA50'), file=table_file)
         for file_ in input:
             line=open(file_,'r').readlines()[0]
             #print("{0} & {1} & {2} & {3} & {4} & {5} & {6} \\\ \hline".format(*line.strip().split()))

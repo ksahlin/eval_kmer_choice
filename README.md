@@ -28,6 +28,15 @@ To see a flowchart of the pipeline, run
 
     $ snakemake --dag | dot -Tpdf > dag.pdf
 
-Current pipline:
+
+Current detailed pipline:
 
 ![Example](figures/dag.png)
+
+Foe a compressed flowchart, run
+
+	$ snakemake --configfile config_local.json --rulegraph | dot -Tpng > figures/ruledag.png
+
+Current detailed pipline:
+
+![Example](figures/ruledag.png)
