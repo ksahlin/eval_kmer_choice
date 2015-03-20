@@ -255,12 +255,13 @@ rule all:
 
 rule optimal_k_index:
     input: reads=config["INBASE"]+"{dataset}.cfg"
-    output: index=config["OUTBASE"]+"{dataset}/optimal_k/index", 
+    output: index=config["OUTBASE"]+"{dataset}/optimal_k/index.rlcsa.array", 
             stderr=config["OUTBASE"]+"{dataset}/optimal_k/index.stderr", 
             stdout=config["OUTBASE"]+"{dataset}/optimal_k/index.stdout",
     run:
         time=config["GNUTIME"]
-        shell(" {time} optimal-k -r {input.reads}  --buildindex {output.index} 1> {output.stdout} 2> {output.stderr}")
+        index_path=config["OUTBASE"]+"{0}/optimal_k/index".format(wildcards.dataset)
+        shell(" {time} optimal-k -r {input.reads}  --buildindex {index_path} 1> {output.stdout} 2> {output.stderr}")
 
         ###########
         # for testing on mac:
