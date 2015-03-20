@@ -1,0 +1,2 @@
+#!/bin/bash
+sbatch -A b2013169 -p core -t 00:01:00 --qos=short --wrap "bash $@"
