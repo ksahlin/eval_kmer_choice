@@ -265,10 +265,9 @@ rule optimal_k_index:
 
         ###########
         # for testing on mac:
-        #shell("/usr/bin/time -lp touch {output.index} 1> {output.stdout} 2> {output.stderr} " )
-        shell("touch {output.index}")
-        shell("touch {output.temp_csv}")
-        print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
+        # shell("touch {output.index}")
+        # shell("touch {output.temp_csv}")
+        # print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
         ###########
 
 rule optimal_k_sampling:
@@ -324,13 +323,6 @@ rule kmergenie:
         k, a = get_kmer_genie_params(output.csv)
         shell("echo {0} {1} > {{output.best_params}} ".format(k,a))
 
-        # print("{{0}}\t{{1}}".format(k,a),output.best_params)
-
-        ###########
-        # for testing on mac:
-        #print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
-        ###########
-
 
 
 
@@ -344,18 +336,18 @@ rule unitiger:
         time = config["GNUTIME"]
         prefix=config["OUTBASE"]+"{0}/{1}/unitiger".format(wildcards.dataset, wildcards.tool)
         k,a = get_k_and_a_for_assembler(input.params)
-        #shell("{time} unitiger -r {input.reads} -o {prefix} -k {k} -K {k} -a {a} -A {a} 1> {output.stdout} 2> {output.stderr}")   
+        shell("{time} unitiger -r {input.reads} -o {prefix} -k {k} -K {k} -a {a} -A {a} 1> {output.stdout} 2> {output.stderr}")   
         shell("mv {0} {1}".format(prefix+".unitigs", prefix+'.fasta'))
 
         ###########
         # for testing on mac:
 
-        print("{0}\n{1}\n{2}\n{3}\n{4}\n{5}".format('>ctg1','CTAGCTCTACGTCACTCACGCCCCGCTTTCTATTGATGGAAGTCGTCTAATTCACTATAACAGCGAATCGGGGCCCCTCAGCCCATATGCTGAGCCCTCCTGTACGTGATCTATACTGGCTTTTAATACAGAAGGCCACCACTA',\
-            '>ctg2','CCCTAGCACCGTCACTCTATTTTGTACCCTTGAACTTCTCGACATTCTATTTCGGCCAGGCGTACAAACCTGCGGTGATGGGCCTGCTAAACACCACC',\
-            '>ctg3','CGGCGAAGCTTAGGCGCTTCAAAAGCCAAAACATCAACGATGGTTCGCCGGGGGTGACGCCTTACCTATCTAGCGTGCGTCGCGTGATGCACGCTGGCATTGAGGTGAATTCGGCCTAGGATGCTTAATCAGAGCATGTTCCATCGTTAGCGGCTGCCAGGAAGGTGGTATATCACCTCCGGGGTGGTCAAAAATGGGGTCGC'),\
-             file=open(prefix+".fasta", 'w') ) 
-        print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
-        print("{0}".format(STDERRSTRING), file=open(output.stdout, 'w') ) 
+        # print("{0}\n{1}\n{2}\n{3}\n{4}\n{5}".format('>ctg1','CTAGCTCTACGTCACTCACGCCCCGCTTTCTATTGATGGAAGTCGTCTAATTCACTATAACAGCGAATCGGGGCCCCTCAGCCCATATGCTGAGCCCTCCTGTACGTGATCTATACTGGCTTTTAATACAGAAGGCCACCACTA',\
+        #     '>ctg2','CCCTAGCACCGTCACTCTATTTTGTACCCTTGAACTTCTCGACATTCTATTTCGGCCAGGCGTACAAACCTGCGGTGATGGGCCTGCTAAACACCACC',\
+        #     '>ctg3','CGGCGAAGCTTAGGCGCTTCAAAAGCCAAAACATCAACGATGGTTCGCCGGGGGTGACGCCTTACCTATCTAGCGTGCGTCGCGTGATGCACGCTGGCATTGAGGTGAATTCGGCCTAGGATGCTTAATCAGAGCATGTTCCATCGTTAGCGGCTGCCAGGAAGGTGGTATATCACCTCCGGGGTGGTCAAAAATGGGGTCGC'),\
+        #      file=open(prefix+".fasta", 'w') ) 
+        # print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
+        # print("{0}".format(STDERRSTRING), file=open(output.stdout, 'w') ) 
         ###########
 
 rule minia:
@@ -373,12 +365,12 @@ rule minia:
         ###########
         # for testing on mac:
 
-        print("{0}\n{1}\n{2}\n{3}\n{4}\n{5}".format('>ctg1','CTAGCTCTACGTCACTCACGCCCCGCTTTCTATTGATGGAAGTCGTCTAATTCACTATAACAGCGAATCGGGGCCCCTCAGCCCATATGCTGAGCCCTCCTGTACGTGATCTATACTGGCTTTTAATACAGAAGGCCACCACTA',\
-            '>ctg2','CCCTAGCACCGTCACTCTATTTTGTACCCTTGAACTTCTCGACATTCTATTTCGGCCAGGCGTACAAACCTGCGGTGATGGGCCTGCTAAACACCACC',\
-            '>ctg3','CGGCGAAGCTTAGGCGCTTCAAAAGCCAAAACATCAACGATGGTTCGCCGGGGGTGACGCCTTACCTATCTAGCGTGCGTCGCGTGATGCACGCTGGCATTGAGGTGAATTCGGCCTAGGATGCTTAATCAGAGCATGTTCCATCGTTAGCGGCTGCCAGGAAGGTGGTATATCACCTCCGGGGTGGTCAAAAATGGGGTCGC'),\
-             file=open(prefix+".contigs.fa", 'w') ) 
-        print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
-        print("{0}".format(STDERRSTRING), file=open(output.stdout, 'w') ) 
+        # print("{0}\n{1}\n{2}\n{3}\n{4}\n{5}".format('>ctg1','CTAGCTCTACGTCACTCACGCCCCGCTTTCTATTGATGGAAGTCGTCTAATTCACTATAACAGCGAATCGGGGCCCCTCAGCCCATATGCTGAGCCCTCCTGTACGTGATCTATACTGGCTTTTAATACAGAAGGCCACCACTA',\
+        #     '>ctg2','CCCTAGCACCGTCACTCTATTTTGTACCCTTGAACTTCTCGACATTCTATTTCGGCCAGGCGTACAAACCTGCGGTGATGGGCCTGCTAAACACCACC',\
+        #     '>ctg3','CGGCGAAGCTTAGGCGCTTCAAAAGCCAAAACATCAACGATGGTTCGCCGGGGGTGACGCCTTACCTATCTAGCGTGCGTCGCGTGATGCACGCTGGCATTGAGGTGAATTCGGCCTAGGATGCTTAATCAGAGCATGTTCCATCGTTAGCGGCTGCCAGGAAGGTGGTATATCACCTCCGGGGTGGTCAAAAATGGGGTCGC'),\
+        #      file=open(prefix+".contigs.fa", 'w') ) 
+        # print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
+        # print("{0}".format(STDERRSTRING), file=open(output.stdout, 'w') ) 
         ###########
 
 rule QUAST:
@@ -411,7 +403,6 @@ rule time_and_mem:
     run:
         usertime, wallclocktime, memory_gb =  parse_gnu_time(input.stderr)
         print("{0}\t{1}\t{2}\t{3}\t{4}\t{5}".format(wildcards.dataset, wildcards.tool, wildcards.method, usertime, wallclocktime, memory_gb), file=open(output.outfile, 'w') )
-        #shell("touch {config["OUTBASE"]}{wildcards.dataset}/{wildcards.tool}/{wildcards.method}_time_and_mem.txt ") 
         
 
 rule performace_latex_table:
@@ -422,7 +413,6 @@ rule performace_latex_table:
         print("{0} & {1} & {2} & {3} & {4} & {5} \\\ \hline".format('organism', 'tool','method', 'wall clock time', 'user time', 'peak memory'), file=table_file)
         for file_ in input.files:
             line=open(file_,'r').readlines()[0]
-            #print("{0} & {1} & {2} & {3} & {4} & {5} \\\ \hline".format(*line.strip().split()))
             print("{0} & {1} & {2} & {3} & {4} & {5} \\\ \hline".format(*line.strip().split()), file=table_file)
 
 rule quality_latex_table:
@@ -433,7 +423,6 @@ rule quality_latex_table:
         print("{0} & {1} & {2} & {3} & {4} & {5} & {6} \\\ \hline".format('organism', 'tool', 'E-size', 'esitmated genome size', 'N50', 'misassmblies', 'NA50'), file=table_file)
         for file_ in input:
             line=open(file_,'r').readlines()[0]
-            #print("{0} & {1} & {2} & {3} & {4} & {5} & {6} \\\ \hline".format(*line.strip().split()))
             print("{0} & {1} & {2} & {3} & {4} & {5} & {6} \\\ \hline".format(*line.strip().split()), file=table_file)
 
 
