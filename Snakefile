@@ -271,7 +271,7 @@ rule optimal_k_index:
         ###########
 
 rule optimal_k_sampling:
-    input: reads=config["INBASE"]+"{dataset}.cfg", index=config["OUTBASE"]+"{dataset}/optimal_k/index"
+    input: reads=config["INBASE"]+"{dataset}.cfg", index=config["OUTBASE"]+"{dataset}/optimal_k/index.rlcsa.array"
     output: stderr=config["OUTBASE"]+"{dataset}/optimal_k/sampling.stderr", 
             stdout=config["OUTBASE"]+"{dataset}/optimal_k/sampling.stdout",
             best_params=config["OUTBASE"]+"{dataset}/optimal_k/best_params.txt"
@@ -280,8 +280,9 @@ rule optimal_k_sampling:
         prefix=config["OUTBASE"]+"{0}/optimal_k/sampling".format(wildcards.dataset)
         min_a = config["optimal_k_rules"]["min_abundance"]
         max_a = config["optimal_k_rules"]["max_abundance"]
+        index_path=config["OUTBASE"]+"{0}/optimal_k/index".format(wildcards.dataset)
 
-        shell(" {time} optimal-k -r {input.reads}  --loadindex {input.index} -a {min_a} -A {max_a} -o {prefix} 1> {output.stdout} 2> {output.stderr}")
+        shell(" {time} optimal-k -r {input.reads}  --loadindex {index_path} -a {min_a} -A {max_a} -o {prefix} 1> {output.stdout} 2> {output.stderr}")
 
 
         ###########
