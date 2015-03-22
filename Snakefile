@@ -257,7 +257,16 @@ rule optimal_k_index:
     input: reads=config["INBASE"]+"{dataset}.cfg"
     output: index=config["OUTBASE"]+"{dataset}/optimal_k/index.rlcsa.array", 
             stderr=config["OUTBASE"]+"{dataset}/optimal_k/index.stderr", 
-            stdout=config["OUTBASE"]+"{dataset}/optimal_k/index.stdout",
+            stdout=config["OUTBASE"]+"{dataset}/optimal_k/index.stdout"
+    params: 
+        runtime=config["SBATCH"]["{dataset}"]["optimalk_index_time"],
+        memsize=config["SBATCH"]["{dataset}"]["memsize"],
+        partition=config["SBATCH"]["{dataset}"]["partition"],
+        n=config["SBATCH"]["{dataset}"]["n"],
+        jobname="{dataset}"+"optimalk_indexing",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
         time=config["GNUTIME"]
         index_path=config["OUTBASE"]+"{0}/optimal_k/index".format(wildcards.dataset)
@@ -275,6 +284,15 @@ rule optimal_k_sampling:
     output: stderr=config["OUTBASE"]+"{dataset}/optimal_k/sampling.stderr", 
             stdout=config["OUTBASE"]+"{dataset}/optimal_k/sampling.stdout",
             best_params=config["OUTBASE"]+"{dataset}/optimal_k/best_params.txt"
+    params: 
+        runtime=config["SBATCH"]["{dataset}"]["optimalk_sampling_time"],
+        memsize=config["SBATCH"]["{dataset}"]["memsize"],
+        partition=config["SBATCH"]["{dataset}"]["partition"],
+        n=config["SBATCH"]["{dataset}"]["n"],
+        jobname="{dataset}"+"optimalk_sampling",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
         time=config["GNUTIME"]
         prefix=config["OUTBASE"]+"{0}/optimal_k/sampling".format(wildcards.dataset)
@@ -313,6 +331,15 @@ rule kmergenie:
             stderr=config["OUTBASE"]+"{dataset}/kmergenie/default.stderr", 
             stdout=config["OUTBASE"]+"{dataset}/kmergenie/default.stdout",
             best_params=config["OUTBASE"]+"{dataset}/kmergenie/best_params.txt"
+    params: 
+        runtime=config["SBATCH"]["{dataset}"]["kmergenie_time"],
+        memsize=config["SBATCH"]["{dataset}"]["memsize"],
+        partition=config["SBATCH"]["{dataset}"]["partition"],
+        n=config["SBATCH"]["{dataset}"]["n"],
+        jobname="{dataset}"+"kmergenie",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
         env = config["LOAD_PYTHON_ENV"]
         shell("{env}")
@@ -337,7 +364,13 @@ rule unitiger:
         time = config["GNUTIME"]
         prefix=config["OUTBASE"]+"{0}/{1}/unitiger".format(wildcards.dataset, wildcards.tool)
         k,a = get_k_and_a_for_assembler(input.params)
-        shell("{time} unitiger -r {input.reads} -o {prefix} -k {k} -K {k} -a {a} -A {a} 1> {output.stdout} 2> {output.stderr}")   
+
+        env = config["LOAD_PYTHON_ENV"]
+        shell("{env}")
+        python = config["PYTHON2"]
+        path=config["unitiger_rules"]["path"]
+
+        shell("{time} {python} {path}Unitiger_wrapper.py -r {input.reads} -o {prefix} -k {k} -K {k} -a {a} -A {a} 1> {output.stdout} 2> {output.stderr}")   
         shell("mv {0} {1}".format(prefix+".unitigs", prefix+'.fasta'))
 
         ###########
