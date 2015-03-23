@@ -476,7 +476,7 @@ rule time_and_mem:
         memsize = "mem128GB",
         partition = "core",
         n = "1",
-        jobname="{dataset}"+"time_and_mem",
+        jobname="time_and_mem",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
@@ -493,7 +493,7 @@ rule performace_latex_table:
         memsize = "mem128GB",
         partition = "core",
         n = "1",
-        jobname="{dataset}"+"time_and_mem",
+        jobname="performace_latex_table",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
@@ -512,7 +512,7 @@ rule quality_latex_table:
         memsize = "mem128GB",
         partition = "core",
         n = "1",
-        jobname="{dataset}"+"time_and_mem",
+        jobname="quality_latex_table",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
