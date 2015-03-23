@@ -272,8 +272,6 @@ rule optimal_k_index:
     run:
         time=config["GNUTIME"]
         runtime=config["SBATCH"][wildcards.dataset]["optimalk_index_time"]
-        print(runtime)
-        print (config["SBATCH"][wildcards.dataset])
         index_path=config["OUTBASE"]+"{0}/optimal_k/index".format(wildcards.dataset)
         shell(" {time} optimal-k -r {input.reads}  --buildindex {index_path} 1> {output.stdout} 2> {output.stderr}")
 
