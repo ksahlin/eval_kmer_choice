@@ -9,7 +9,8 @@
     },
     "optimal_k_rules" : {
         "min_abundance" : "1",
-        "max_abundance" : "5"
+        "max_abundance" : "5",
+        "path" : "/Users/ksahlin/Bin/optimal-k"
     },
     "REFERENCES" :{
             "staph" : "/Users/ksahlin/_tmp/Optimal_k/refs/staph.fa",

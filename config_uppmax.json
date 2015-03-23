@@ -8,6 +8,7 @@
         "min_contig" : "200"
     },
     "optimal_k_rules" : {
+        "path" : "/home/kris/bin/optimal-k",
         "min_abundance" : "1",
         "max_abundance" : "5"
     },
@@ -26,7 +27,7 @@
             "MAIL" : "kristoffer.sahlin@scilifelab.se",
             "MAIL_TYPE" : "FAIL",
             "staph" : { "partition" : "core", 
-                        "n" : 2, 
+                        "n" : "2", 
                         "memsize" : "mem128GB",
                         "kmergenie_time" : "3:00:00",
                         "optimalk_index_time" : "30:00",
@@ -38,7 +39,7 @@
                         },
 
             "rhodo" : { "partition" : "core", 
-                        "n" : 2, 
+                        "n" : "2", 
                         "memsize" : "mem128GB",
                         "kmergenie_time" : "3:00:00",
                         "optimalk_index_time" : "30:00",
@@ -50,7 +51,7 @@
                         },
 
             "plasm" : { "partition" : "node", 
-                        "n" : 1, 
+                        "n" : "1", 
                         "memsize" : "mem128GB",
                         "kmergenie_time" : "20:00:00",
                         "optimalk_index_time" : "5:00:00",
@@ -62,7 +63,7 @@
                          },
 
             "hs14" : { "partition" : "node", 
-                        "n" : 1, 
+                        "n" : "1", 
                         "memsize" : "mem128GB", 
                         "kmergenie_time" : "20:00:00",
                         "optimalk_index_time" : "5:00:00",
@@ -74,7 +75,7 @@
                         },
 
             "spruce" : { "partition" : "node", 
-                        "n" : 1, 
+                        "n" : "1", 
                         "memsize" : "mem512GB",
                         "kmergenie_time" : "4-00:00:00",
                         "optimalk_index_time" : "3-00:00:00",

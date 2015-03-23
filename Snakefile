@@ -1,5 +1,6 @@
- 
 configfile: "config_uppmax.json"
+KMERGENIE_VERSION = os.path.getmtime(config["kmergenie_rules"]["path"])
+OPTIMAL_K_VERSION = os.path.getmtime(config["optimal_k_rules"]["path"])
 
 STDERRSTRING="""
     Command being timed: "optimal-k -r /home/kris/Work/optimal_k/kmergenie/input/spruce_subset.cfg -b /proj/b2013169/nobackup/optimal_k/index -o /tmp/optimal_k_subset.csv"
@@ -258,6 +259,7 @@ rule optimal_k_index:
     output: index=config["OUTBASE"]+"{dataset}/optimal_k/index.rlcsa.array", 
             stderr=config["OUTBASE"]+"{dataset}/optimal_k/index.stderr", 
             stdout=config["OUTBASE"]+"{dataset}/optimal_k/index.stdout"
+    version: OPTIMAL_K_VERSION
     params: 
         runtime = lambda wildcards: config["SBATCH"][wildcards.dataset]["optimalk_index_time"],
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
@@ -287,6 +289,7 @@ rule optimal_k_sampling:
     output: stderr=config["OUTBASE"]+"{dataset}/optimal_k/sampling.stderr", 
             stdout=config["OUTBASE"]+"{dataset}/optimal_k/sampling.stdout",
             best_params=config["OUTBASE"]+"{dataset}/optimal_k/best_params.txt"
+    version: OPTIMAL_K_VERSION
     params: 
         runtime= lambda wildcards: config["SBATCH"][wildcards.dataset]["optimalk_sample_time"],
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
@@ -334,6 +337,8 @@ rule kmergenie:
             stderr=config["OUTBASE"]+"{dataset}/kmergenie/default.stderr", 
             stdout=config["OUTBASE"]+"{dataset}/kmergenie/default.stdout",
             best_params=config["OUTBASE"]+"{dataset}/kmergenie/best_params.txt"
+    version: KMERGENIE_VERSION
+
     params: 
         runtime=lambda wildcards: config["SBATCH"][wildcards.dataset]["kmergenie_time"],
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
