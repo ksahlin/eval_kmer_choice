@@ -259,16 +259,19 @@ rule optimal_k_index:
             stderr=config["OUTBASE"]+"{dataset}/optimal_k/index.stderr", 
             stdout=config["OUTBASE"]+"{dataset}/optimal_k/index.stdout"
     params: 
-        runtime=config["SBATCH"]["{dataset}"]["optimalk_index_time"],
-        memsize=config["SBATCH"]["{dataset}"]["memsize"],
-        partition=config["SBATCH"]["{dataset}"]["partition"],
-        n=config["SBATCH"]["{dataset}"]["n"],
-        jobname="{dataset}"+"optimalk_indexing",
-        account=config["SBATCH"]["ACCOUNT"],
-        mail=config["SBATCH"]["MAIL"],
-        mail_type=config["SBATCH"]["MAIL_TYPE"]
+        runtime = lambda wildcards: config["SBATCH"][wildcards.dataset]["optimalk_index_time"],
+        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
+        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
+        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
+        jobname = "{dataset}"+"optimalk_indexing",
+        account = config["SBATCH"]["ACCOUNT"],
+        mail = config["SBATCH"]["MAIL"],
+        mail_type = config["SBATCH"]["MAIL_TYPE"]
     run:
         time=config["GNUTIME"]
+        runtime=config["SBATCH"][wildcards.dataset]["optimalk_index_time"]
+        print(runtime)
+        print (config["SBATCH"][wildcards.dataset])
         index_path=config["OUTBASE"]+"{0}/optimal_k/index".format(wildcards.dataset)
         shell(" {time} optimal-k -r {input.reads}  --buildindex {index_path} 1> {output.stdout} 2> {output.stderr}")
 
@@ -285,10 +288,10 @@ rule optimal_k_sampling:
             stdout=config["OUTBASE"]+"{dataset}/optimal_k/sampling.stdout",
             best_params=config["OUTBASE"]+"{dataset}/optimal_k/best_params.txt"
     params: 
-        runtime=config["SBATCH"]["{dataset}"]["optimalk_sampling_time"],
-        memsize=config["SBATCH"]["{dataset}"]["memsize"],
-        partition=config["SBATCH"]["{dataset}"]["partition"],
-        n=config["SBATCH"]["{dataset}"]["n"],
+        runtime= lambda wildcards: config["SBATCH"][wildcards.dataset]["optimalk_sample_time"],
+        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
+        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
+        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
         jobname="{dataset}"+"optimalk_sampling",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
@@ -332,10 +335,10 @@ rule kmergenie:
             stdout=config["OUTBASE"]+"{dataset}/kmergenie/default.stdout",
             best_params=config["OUTBASE"]+"{dataset}/kmergenie/best_params.txt"
     params: 
-        runtime=config["SBATCH"]["{dataset}"]["kmergenie_time"],
-        memsize=config["SBATCH"]["{dataset}"]["memsize"],
-        partition=config["SBATCH"]["{dataset}"]["partition"],
-        n=config["SBATCH"]["{dataset}"]["n"],
+        runtime=lambda wildcards: config["SBATCH"][wildcards.dataset]["kmergenie_time"],
+        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
+        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
+        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
         jobname="{dataset}"+"kmergenie",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
@@ -360,6 +363,15 @@ rule unitiger:
     output: stdout=config["OUTBASE"]+"{dataset}/{tool}/unitiger.stdout",
             stderr=config["OUTBASE"]+"{dataset}/{tool}/unitiger.stderr",
             unitigs=config["OUTBASE"]+"{dataset}/{tool}/unitiger.fasta"
+    params: 
+        runtime=lambda wildcards: config["SBATCH"][wildcards.dataset]["unitiger_time"],
+        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
+        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
+        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
+        jobname="{dataset}"+"unitiger",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
         time = config["GNUTIME"]
         prefix=config["OUTBASE"]+"{0}/{1}/unitiger".format(wildcards.dataset, wildcards.tool)
@@ -390,6 +402,15 @@ rule minia:
     output: stdout=config["OUTBASE"]+"{dataset}/{tool}/minia.stdout",
             stderr=config["OUTBASE"]+"{dataset}/{tool}/minia.stderr",
             contigs=config["OUTBASE"]+"{dataset}/{tool}/minia.fasta"
+    params: 
+        runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["minia_time"],
+        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
+        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
+        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
+        jobname="{dataset}"+"minia",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
         time = config["GNUTIME"]
         prefix=config["OUTBASE"]+"{0}/{1}/minia".format(wildcards.dataset, wildcards.tool)
@@ -411,6 +432,15 @@ rule QUAST:
     input: contigs=config["OUTBASE"]+"{dataset}/{tool}/{assembler}.fasta"
     output: #results=config["OUTBASE"]+"{dataset}/{tool}/QUAST/report.txt",
             nice_format=config["OUTBASE"]+"{dataset}/{tool}/result_metrics_{assembler}.csv"
+    params: 
+        runtime=lambda wildcards: config["SBATCH"][wildcards.dataset]["quast_time"],
+        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
+        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
+        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
+        jobname="{dataset}"+"quast",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
         env = config["LOAD_PYTHON_ENV"]
         shell("{env}")
