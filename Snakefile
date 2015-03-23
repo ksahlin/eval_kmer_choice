@@ -1,3 +1,7 @@
+"""
+Submit this job on uppmax as:
+    snakemake --debug --keep-going --cluster "sbatch -A {params.account} -p {params.partition} -n {params.n}  -t {params.runtime} -C {params.memsize} -J {params.jobname} --mail-type={params.mail_type} --mail-user={params.mail}"
+"""
 configfile: "config_uppmax.json"
 KMERGENIE_VERSION = os.path.getmtime(config["kmergenie_rules"]["path"])
 OPTIMAL_K_VERSION = os.path.getmtime(config["optimal_k_rules"]["path"])
@@ -467,6 +471,15 @@ rule QUAST:
 rule time_and_mem:
     input:  stderr=config["OUTBASE"]+"{dataset}/{tool}/{method}.stderr" #rules.optimal_k_index.output.stderr, rules.optimal_k_sampling.output.stderr,rules.kmergenie.output.stderr #,
     output: outfile=config["OUTBASE"]+"{dataset}/{tool}/{method}_time_and_mem.txt"
+    params: 
+        runtime="15:00",
+        memsize = "mem128GB",
+        partition = "core",
+        n = "1",
+        jobname="{dataset}"+"time_and_mem",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
         usertime, wallclocktime, memory_gb =  parse_gnu_time(input.stderr)
         print("{0}\t{1}\t{2}\t{3}\t{4}\t{5}".format(wildcards.dataset, wildcards.tool, wildcards.method, usertime, wallclocktime, memory_gb), file=open(output.outfile, 'w') )
@@ -475,6 +488,15 @@ rule time_and_mem:
 rule performace_latex_table:
     input: files= myfunc  #rules.kmergenie.output.stderr, rules.optimal_k_index.output.stderr, rules.optimal_k_sampling.output.stderr
     output: table=config["OUTBASE"]+"performance_table.tex"
+    params: 
+        runtime="15:00",
+        memsize = "mem128GB",
+        partition = "core",
+        n = "1",
+        jobname="{dataset}"+"time_and_mem",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
         table_file = open(output.table, 'w')
         print("{0} & {1} & {2} & {3} & {4} & {5} \\\ \hline".format('organism', 'tool','method', 'wall clock time', 'user time', 'peak memory'), file=table_file)
@@ -485,6 +507,15 @@ rule performace_latex_table:
 rule quality_latex_table:
     input: map(lambda x: x+"{assembler}.csv", expand(config["OUTBASE"]+"{dataset}/{tool}/result_metrics_",  dataset=config["DATASETS"], tool=config["TOOLS"]) ) 
     output: table=config["OUTBASE"]+"quality_table_{assembler}.tex"
+    params: 
+        runtime="15:00",
+        memsize = "mem128GB",
+        partition = "core",
+        n = "1",
+        jobname="{dataset}"+"time_and_mem",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
         table_file = open(output.table, 'w')
         print("{0} & {1} & {2} & {3} & {4} & {5} & {6} \\\ \hline".format('organism', 'tool', 'E-size', 'esitmated genome size', 'N50', 'misassmblies', 'NA50'), file=table_file)
