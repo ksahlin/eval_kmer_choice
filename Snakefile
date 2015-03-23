@@ -476,7 +476,7 @@ rule time_and_mem:
         memsize = "mem128GB",
         partition = "core",
         n = "1",
-        jobname="time_and_mem",
+        jobname="{dataset}"+"time_and_mem",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
