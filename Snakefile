@@ -238,8 +238,14 @@ def  parse_gnu_time(stderr_file):
             mem_tmp = int(mem_match.group().split()[5])
             memory_gb = mem_tmp / 4000000.0 
 
-    h,m,s = map(lambda x: int(x), wallclocktime.split(":") )
-    tot_wallclock_secs = h*3600 + m*60 + s
+    vals = map(lambda x: float(x), wallclocktime.split(":") )
+    if len(vals) == 3:
+        h,m,s = vals
+        tot_wallclock_secs = h*3600.0 + m*60.0 + s
+    elif len(vals) == 2:
+        m,s = vals
+        tot_wallclock_secs = m*60.0 + s
+
     return usertime, tot_wallclock_secs, memory_gb
 
 def myfunc(wildcards):
@@ -375,7 +381,7 @@ rule unitiger:
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
         partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
         n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
-        jobname="{dataset}"+"_unitiger",
+        jobname="{dataset}_{tool}_"+"_unitiger",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
@@ -414,7 +420,7 @@ rule minia:
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
         partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
         n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
-        jobname="{dataset}"+"_minia",
+        jobname="{dataset}_{tool}_"+"_minia",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
