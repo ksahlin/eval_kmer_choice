@@ -3,8 +3,8 @@ Submit this job on uppmax as:
     snakemake --debug --keep-going --cluster "sbatch -A {params.account} -p {params.partition} -n {params.n}  -t {params.runtime} -C {params.memsize} -J {params.jobname} --mail-type={params.mail_type} --mail-user={params.mail}"
 """
 configfile: "config_uppmax.json"
-KMERGENIE_VERSION = os.path.getmtime(config["kmergenie_rules"]["path"])
-OPTIMAL_K_VERSION = os.path.getmtime(config["optimal_k_rules"]["path"])
+KMERGENIE_VERSION = str(os.path.getmtime(config["kmergenie_rules"]["path"]))
+OPTIMAL_K_VERSION = str(os.path.getmtime(config["optimal_k_rules"]["path"]))
 
 STDERRSTRING="""
     Command being timed: "optimal-k -r /home/kris/Work/optimal_k/kmergenie/input/spruce_subset.cfg -b /proj/b2013169/nobackup/optimal_k/index -o /tmp/optimal_k_subset.csv"
