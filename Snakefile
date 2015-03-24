@@ -238,7 +238,7 @@ def  parse_gnu_time(stderr_file):
             mem_tmp = int(mem_match.group().split()[5])
             memory_gb = mem_tmp / 4000000.0 
 
-    vals = map(lambda x: float(x), wallclocktime.split(":") )
+    vals = list(map(lambda x: float(x), wallclocktime.split(":") ))
     if len(vals) == 3:
         h,m,s = vals
         tot_wallclock_secs = h*3600.0 + m*60.0 + s
