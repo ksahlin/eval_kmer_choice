@@ -26,8 +26,8 @@
             "ACCOUNT" : "b2013169",
             "MAIL" : "kristoffer.sahlin@scilifelab.se",
             "MAIL_TYPE" : "FAIL",
-            "staph" : { "partition" : "core", 
-                        "n" : "2", 
+            "staph" : { "partition" : "node", 
+                        "n" : "1", 
                         "memsize" : "mem128GB",
                         "kmergenie_time" : "3:00:00",
                         "optimalk_index_time" : "30:00",
@@ -38,8 +38,8 @@
                         "quast_time" : "30:00"
                         },
 
-            "rhodo" : { "partition" : "core", 
-                        "n" : "2", 
+            "rhodo" : { "partition" : "node", 
+                        "n" : "1", 
                         "memsize" : "mem128GB",
                         "kmergenie_time" : "3:00:00",
                         "optimalk_index_time" : "30:00",
