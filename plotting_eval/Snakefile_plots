@@ -1,0 +1,118 @@
+"""
+Submit this job on uppmax as:
+    snakemake --debug --keep-going -j 999 --cluster "sbatch -A {params.account} -p {params.partition} -n {params.n}  -t {params.runtime} -C {params.memsize} -J {params.jobname} --mail-type={params.mail_type} --mail-user={params.mail}"
+"""
+configfile: "config_uppmax.json"
+
+
+OPTIMAL_K_CSV =  """k,a,nr_nodes,nr_edges,avg_internal_nodes,avg_length_unitigs,est_sample_size,nr_unitigs,e_size
+15,3,463459934,.,0.000740479,16.0007,39188,1714565491,16
+16,3,1309795363,.,0.0092744,17.0093,19181641,4158926686,17.0002
+17,3,2759126708,.,0.0417909,18.0418,6679601,6848171017,18.0834
+18,3,4429775388,.,0.14878,19.1488,3111396,7613435850,19.1028
+19,3,5792424218,.,0.439782,20.4398,1898980,6144257414,20.5659
+20,3,6754415807,.,1.06371,22.0637,1424483,4181138217,22.2957
+21,3,7409051238,.,1.99804,23.998,1962292,2875983885,24.8389
+22,3,7924759332,.,3.00925,26.0093,2832511,2201822923,27.4343
+23,3,8388271127,.,3.83897,27.839,3662264,1891330277,29.6962
+24,3,8816248016,.,4.38679,29.3868,4212425,1766953239,31.5029
+25,3,9210664550,.,4.87116,30.8712,4450241,1680660037,36.1679
+26,3,9603348531,.,5.3223,32.3223,4616153,1617523180,34.8475
+27,3,9966266852,.,5.68844,33.6884,4730759,1578984690,39.4653
+28,3,10309476149,.,6.21603,35.216,4778447,1505821803,37.4119
+29,3,10655910604,.,6.68365,36.6837,4940431,1455193337,42.625
+30,3,10965065537,.,7.07185,38.0719,5039094,1420799508,45.6232
+31,3,11268704768,.,7.57675,39.5768,5085643,1369271322,44.41
+32,3,11553747898,.,8.06275,41.0627,5199233,1324572708,51.3489
+33,3,11818797993,.,8.43737,42.4374,5294070,1297886947,46.5192
+34,3,12081095285,.,8.98708,43.9871,5320115,1249857233,48.7037
+35,3,12322159018,.,9.52126,45.5213,5439225,1206737190,53.5589
+36,3,12544982274,.,9.94432,46.9443,5545047,1178562498,51.7894
+37,3,12740181992,.,10.5266,48.5266,5586466,1133615766,73.877
+38,3,12927620353,.,11.0828,50.0828,5713777,1095108251,60.0239
+39,3,13100736228,.,11.4772,51.4772,5816968,1072802688,64.2366
+40,3,13254505176,.,12.0655,53.0655,5837577,1034579336,92.4234
+41,3,13395664548,.,12.648,54.648,5949799,998852217,61.329
+42,3,13514553938,.,13.0215,56.0215,6055364,979489263,63.7341
+43,3,13617395694,.,13.6105,57.6105,6065059,945453996,73.0114
+44,3,13704110150,.,14.1109,59.1109,6170020,918491539,71.3161
+45,3,13769838935,.,14.5632,60.5632,6234144,894689320,77.3879
+46,3,13829471025,.,15.1087,62.1087,6279750,866494177,74.5068
+47,3,13859322159,.,15.542,63.542,6360124,844573054,108.46
+48,3,13883385145,.,15.9266,64.9266,6397735,825548982,82.5667
+49,3,13884569274,.,16.3166,66.3166,6414626,805735747,93.0063
+50,3,13872535119,.,16.6785,67.6785,6438651,787226641,80.9855
+51,3,13832468607,.,17.0695,69.0695,6453116,766882124,88.2264
+52,3,13781982416,.,17.4384,70.4384,6483850,747755811,87.3901
+53,3,13715978371,.,17.6417,71.6417,6505581,735060629,81.196"""
+
+####################################################
+########## standard python functions ###############
+####################################################
+
+###########################################################
+###########################################################
+
+rule all:
+    input:     
+        expand(config["OUTBASE"]+"{dataset}/plots_a{abundance}/x_axis=k,y_axis=e_size.eps", dataset=config["DATASETS"], abundance=[str(i) for i in range(2,7)] )
+
+
+rule unitiger:
+    input:  reads=config["INBASE"]+"{dataset}.cfg" 
+    output: csv=[config["OUTBASE"]+"{dataset}/unitiger.a{i}.csv" for i in range(2,7) ]
+    params: 
+        runtime=lambda wildcards: config["SBATCH"][wildcards.dataset]["unitiger_time"],
+        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
+        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
+        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
+        jobname="{dataset}"+"_unitiger",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
+    run:
+        time = config["GNUTIME"]
+        prefix=config["OUTBASE"]+"{0}/unitiger".format(wildcards.dataset)
+
+        env = config["LOAD_PYTHON_ENV"]
+        shell("{env}")
+        python = config["PYTHON2"]
+        path=config["unitiger_rules"]["path"]
+
+        shell("{time} {python} {path}Unitiger_wrapper.py -r {input.reads} -o {prefix} -k 15 -K 85 -a 2 -A 6")   
+        shell("mv {0} {1}".format(prefix+".unitigs", prefix+'.fasta'))
+
+        ###########
+        # for testing on mac:
+
+        # print("{0}\n{1}\n{2}\n{3}\n{4}\n{5}".format('>ctg1','CTAGCTCTACGTCACTCACGCCCCGCTTTCTATTGATGGAAGTCGTCTAATTCACTATAACAGCGAATCGGGGCCCCTCAGCCCATATGCTGAGCCCTCCTGTACGTGATCTATACTGGCTTTTAATACAGAAGGCCACCACTA',\
+        #     '>ctg2','CCCTAGCACCGTCACTCTATTTTGTACCCTTGAACTTCTCGACATTCTATTTCGGCCAGGCGTACAAACCTGCGGTGATGGGCCTGCTAAACACCACC',\
+        #     '>ctg3','CGGCGAAGCTTAGGCGCTTCAAAAGCCAAAACATCAACGATGGTTCGCCGGGGGTGACGCCTTACCTATCTAGCGTGCGTCGCGTGATGCACGCTGGCATTGAGGTGAATTCGGCCTAGGATGCTTAATCAGAGCATGTTCCATCGTTAGCGGCTGCCAGGAAGGTGGTATATCACCTCCGGGGTGGTCAAAAATGGGGTCGC'),\
+        #      file=open(prefix+".fasta", 'w') ) 
+        # print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
+        # print("{0}".format(STDERRSTRING), file=open(output.stdout, 'w') ) 
+        ###########
+
+
+rule plot:
+    input:  csv_estimated=config["optimal_k_rules"]["results"]+"{dataset}/optimal_k/sampling.a{abundance}.csv",
+            csv_true=config["OUTBASE"]+"{dataset}/unitiger.a{abundance}.csv" 
+    output: config["OUTBASE"]+"{dataset}/plots_a{abundance}/x_axis=k,y_axis=e_size.eps"
+    params: 
+        runtime="5:00",
+        memsize = "mem128GB",
+        partition = "core",
+        n = "1",
+        jobname="plot_{dataset}",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
+    run:
+        env = config["LOAD_PYTHON_ENV"]
+        shell("{env}")
+        path = config["plot_rules"]["path"]
+        python = config["PYTHON2"]
+        out = config["OUTBASE"]+"{0}/plots_a{1}/".format(wildcards.dataset, wildcards.abundance)
+        shell(" {python} {path}plots.py all_plots --result_files {input.csv_estimated} {input.csv_true} --names sampling unitiger --outfolder {out}")
+
+

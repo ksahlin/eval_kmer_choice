@@ -1,0 +1,98 @@
+{
+
+    "plot_rules" : {
+    	"path" : "/home/kris/source/optimal_k/scripts/"
+    },
+    "optimal_k_rules" : {
+        "path" : "/home/kris/bin/optimal-k",
+        "min_abundance" : "1",
+        "max_abundance" : "5",
+        "results" : "/proj/b2013169/private/data/optimal_k/"
+    },
+    "unitiger_rules" : {
+        "path" : "/home/kris/source/optimal_k/bin/Unitiger/"
+    },
+    "REFERENCES" :{
+            "staph" : "/proj/b2013169/private/data/genomes/staph/ref/genome.fasta",
+            "rhodo" : "/proj/b2013169/private/data/genomes/rhodo/ref/genome.fasta",
+            "plasm" : "/proj/b2013169/private/data/genomes/plasm/ref/genome.fasta",            
+            "hs14" : "/proj/b2013169/private/data/genomes/hs14/ref/genome.fasta",
+            "spruce" : ""
+
+    },
+    "SBATCH" : {
+            "ACCOUNT" : "b2013169",
+            "MAIL" : "kristoffer.sahlin@scilifelab.se",
+            "MAIL_TYPE" : "FAIL",
+            "staph" : { "partition" : "node", 
+                        "n" : "1", 
+                        "memsize" : "mem128GB",
+                        "kmergenie_time" : "3:00:00",
+                        "optimalk_index_time" : "30:00",
+                        "optimalk_sample_time" : "3:00:00",
+                        "minia_time" : "1:00:00",
+                        "velvet_time" : "3:00:00",
+                        "unitiger_time" : "30:00",
+                        "quast_time" : "30:00"
+                        },
+
+            "rhodo" : { "partition" : "node", 
+                        "n" : "1", 
+                        "memsize" : "mem128GB",
+                        "kmergenie_time" : "3:00:00",
+                        "optimalk_index_time" : "30:00",
+                        "optimalk_sample_time" : "3:00:00",
+                        "minia_time" : "1:00:00",
+                        "velvet_time" : "3:00:00",
+                        "unitiger_time" : "30:00",
+                        "quast_time" : "30:00"
+                        },
+
+            "plasm" : { "partition" : "node", 
+                        "n" : "1", 
+                        "memsize" : "mem128GB",
+                        "kmergenie_time" : "20:00:00",
+                        "optimalk_index_time" : "5:00:00",
+                        "optimalk_sample_time" : "3:00:00",
+                        "minia_time" : "10:00:00",
+                        "velvet_time" : "20:00:00",
+                        "unitiger_time" : "2:00:00",
+                        "quast_time" : "1:00:00"
+                         },
+
+            "hs14" : { "partition" : "node", 
+                        "n" : "1", 
+                        "memsize" : "mem128GB", 
+                        "kmergenie_time" : "20:00:00",
+                        "optimalk_index_time" : "5:00:00",
+                        "optimalk_sample_time" : "3:00:00",
+                        "minia_time" : "10:00:00",
+                        "velvet_time" : "20:00:00",
+                        "unitiger_time" : "2:00:00",
+                        "quast_time" : "3:00:00"
+                        },
+
+            "spruce" : { "partition" : "node", 
+                        "n" : "1", 
+                        "memsize" : "mem512GB",
+                        "kmergenie_time" : "4-00:00:00",
+                        "optimalk_index_time" : "3-00:00:00",
+                        "optimalk_sample_time" : "5:00:00",
+                        "minia_time" : "3-00:00:00",
+                        "velvet_time" : "3-20:00:00",
+                        "unitiger_time" : "1-00:00:00",
+                        "quast_time" : "24:00:00"
+                        }
+    },
+
+
+    "DATASETS" : ["staph", "rhodo", "plasm", "hs14", "spruce"],
+    "TOOLS" :["optimal_k", "kmergenie"],
+    "METHODS" : ["sampling", "index", "default"],
+    "ASSEMBLERS" : ["unitiger", "minia"],
+	"LOAD_PYTHON_ENV" : "pyenv global 2.7.6 system 3.4.1",
+  	"INBASE" : "/home/kris/Work/optimal_k/config/", 
+	"OUTBASE" : "/proj/b2013169/private/data/optimal_k_plot_analysis/", 
+	"PYTHON2" : "python2.7",
+	"GNUTIME" : "/usr/bin/time -v" 
+}

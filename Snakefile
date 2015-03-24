@@ -317,15 +317,15 @@ rule optimal_k_sampling:
         shell(" {time} optimal-k -r {input.reads}  --loadindex {index_path} -a {min_a} -A {max_a} -o {prefix} 1> {output.stdout} 2> {output.stderr}")
 
 
-        ###########
-        # for testing on mac:
-        print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a1.csv', 'w') ) 
-        print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a2.csv', 'w') ) 
-        print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a3.csv', 'w') ) 
-        print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a4.csv', 'w') ) 
-        print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a5.csv', 'w') ) 
-        print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
-        ###########
+        # ###########
+        # # for testing on mac:
+        # print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a1.csv', 'w') ) 
+        # print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a2.csv', 'w') ) 
+        # print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a3.csv', 'w') ) 
+        # print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a4.csv', 'w') ) 
+        # print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a5.csv', 'w') ) 
+        # print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
+        # ###########
 
         max_objective = 0
         best_k = 0

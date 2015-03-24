@@ -1,0 +1,30 @@
+{
+
+    "plot_rules" : {
+        "path" : "/Users/ksahlin/Documents/workspace/optimal_k/scripts/"
+    },
+    "optimal_k_rules" : {
+        "min_abundance" : "1",
+        "max_abundance" : "6",
+        "path" : "/Users/ksahlin/Bin/optimal-k",
+        "results" : "/Users/ksahlin/_tmp/Optimal_k/plotting_eval/"
+    },
+    "REFERENCES" :{
+            "staph" : "/Users/ksahlin/_tmp/Optimal_k/refs/staph.fa",
+            "rhodo" : "/Users/ksahlin/_tmp/Optimal_k/refs/rhodo.fa",
+            "plasm" : "/Users/ksahlin/_tmp/Optimal_k/refs/plasm.fa",            
+            "hs14" : "/Users/ksahlin/_tmp/Optimal_k/refs/hs14.fa",
+            "spruce" : ""
+    },
+
+    "DATASETS" : ["staph", "rhodo", "plasm", "hs14", "spruce"],
+    "TOOLS" :["optimal_k", "kmergenie"],
+    "METHODS" : ["sampling", "index", "default"],
+    "ASSEMBLERS" : ["unitiger", "minia"],
+	"INBASE" : "/Users/ksahlin/_tmp/Optimal_k/", 
+	"OUTBASE" : "/Users/ksahlin/_tmp/Optimal_k/plotting_eval/", 
+	"LOAD_PYTHON_ENV" : "pyenv global system 3.4.1",
+	"PYTHON2" : "python2.7",
+	"GNUTIME" : "/usr/bin/time -lp"
+ 
+}
