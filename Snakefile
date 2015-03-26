@@ -432,7 +432,7 @@ rule minia:
         time = config["GNUTIME"]
         prefix=config["OUTBASE"]+"{0}/{1}/minia".format(wildcards.dataset, wildcards.tool)
         k,a = get_k_and_a_for_assembler(input.params)
-        shell("{time} minia {input.reads} {k} {a} -o {prefix} 1> {output.stdout} 2> {output.stderr}")   
+        shell("{time} minia -in {input.reads} -kmer-size {k} -abundance-min {a} -out {prefix} 1> {output.stdout} 2> {output.stderr}")   
         shell("mv {0} {1}".format(prefix+".contigs.fa", prefix+'.fasta'))
         ###########
         # for testing on mac:
