@@ -363,7 +363,11 @@ rule kmergenie:
         out = config["OUTBASE"]
         python = config["PYTHON2"]
         path=config["kmergenie_rules"]["path"]
-        shell(" {time} {python} {path}kmergenie -o {out}{wildcards.dataset}/kmergenie/default {input.reads} 1> {output.stdout} 2> {output.stderr}")
+        if (wildcards.dataset == "spruce" or wildcards.dataset =="hs14"):
+            model = "--diploid" 
+        else:
+            model = ""
+        shell(" {time} {python} {path}kmergenie {model} -o {out}{wildcards.dataset}/kmergenie/default {input.reads} 1> {output.stdout} 2> {output.stderr}")
         k, a = get_kmer_genie_params(output.csv)
         shell("echo {0} {1} > {{output.best_params}} ".format(k,a))
 
