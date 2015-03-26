@@ -10,7 +10,7 @@
         "results" : "/proj/b2013169/private/data/optimal_k/"
     },
     "unitiger_rules" : {
-        "path" : "/home/kris/source/optimal_k/bin/Unitiger/"
+        "path" : "/home/kris/git_repos/optimal_k/bin/Unitiger/"
     },
     "REFERENCES" :{
             "staph" : "/proj/b2013169/private/data/genomes/staph/ref/genome.fasta",

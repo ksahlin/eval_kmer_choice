@@ -171,7 +171,7 @@ def get_optimal_k_params(csv_file_path):
     for line in lines[1:]: # removed header
         vals = line.strip().split(',')
         k,nr_genomic_kmers, e_size = int(vals[0]), int(vals[2]), float(vals[8]) 
-        objective = nr_genomic_kmers*e_size
+        objective = e_size
         if objective > max_objective:
             max_objective = objective
             best_k = k
