@@ -378,9 +378,6 @@ rule unitiger:
     input:  reads=config["INBASE"]+"{dataset}.cfg", 
             params=config["OUTBASE"]+"{dataset}/{tool}/best_params.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
     output: unitigs=config["OUTBASE"]+"{dataset}/{tool}/unitiger.fasta"
-
-    log:    stdout=config["OUTBASE"]+"{dataset}/{tool}/unitiger.stdout",
-            stderr=config["OUTBASE"]+"{dataset}/{tool}/unitiger.stderr"
     params: 
         runtime=lambda wildcards: config["SBATCH"][wildcards.dataset]["unitiger_time"],
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
@@ -399,8 +396,10 @@ rule unitiger:
         shell("{env}")
         python = config["PYTHON2"]
         path=config["unitiger_rules"]["path"]
+        stdout=config["OUTBASE"]+"{dataset}/{tool}/unitiger.stdout",
+        stderr=config["OUTBASE"]+"{dataset}/{tool}/unitiger.stderr"
 
-        shell("{time} {python} {path}Unitiger_wrapper.py -r {input.reads} -o {prefix} -k {k} -K {k} -a {a} -A {a} 1> {log.stdout} 2> {log.stderr}")   
+        shell("{time} {python} {path}Unitiger_wrapper.py -r {input.reads} -o {prefix} -k {k} -K {k} -a {a} -A {a} 1> {stdout} 2> {stderr}")   
         shell("mv {0} {1}".format(prefix+".unitigs", prefix+'.fasta'))
 
         ###########
@@ -418,8 +417,6 @@ rule minia:
     input:  reads=config["INBASE"]+"{dataset}.cfg", 
             params=config["OUTBASE"]+"{dataset}/{tool}/best_params.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
     output: contigs=config["OUTBASE"]+"{dataset}/{tool}/minia.fasta"
-    log:    stdout=config["OUTBASE"]+"{dataset}/{tool}/minia.stdout",
-            stderr=config["OUTBASE"]+"{dataset}/{tool}/minia.stderr" 
     params: 
         runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["minia_time"],
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
@@ -433,7 +430,9 @@ rule minia:
         time = config["GNUTIME"]
         prefix=config["OUTBASE"]+"{0}/{1}/minia".format(wildcards.dataset, wildcards.tool)
         k,a = get_k_and_a_for_assembler(input.params)
-        shell("{time} minia -in {input.reads} -kmer-size {k} -abundance-min {a} -out {prefix} 1> {log.stdout} 2> {log.stderr}")   
+        stdout=config["OUTBASE"]+"{dataset}/{tool}/minia.stdout"
+        stderr=config["OUTBASE"]+"{dataset}/{tool}/minia.stderr" 
+        shell("{time} minia -in {input.reads} -kmer-size {k} -abundance-min {a} -out {prefix} 1> {stdout} 2> {stderr}")   
         shell("mv {0} {1}".format(prefix+".contigs.fa", prefix+'.fasta'))
         ###########
         # for testing on mac:
