@@ -205,10 +205,11 @@ def parse_quast(quast_report):
     for line in lines:
         if re.match(r"Total length \(\>\= 0 bp\)",line):
             genome_size = int(line.strip().split()[5])
-        if re.match(r"N50",line):
-            N50 = int(line.strip().split()[1])
-        if re.match(r"NA50",line):
-            NA50 = int(line.strip().split()[1]) 
+        if re.match(r"NG50",line):
+            NG50 = int(line.strip().split()[1])
+            has_ref = True
+        if re.match(r"NGA50",line):
+            NGA50 = int(line.strip().split()[1]) 
             has_ref = True
         if re.match(r"# misassemblies",line):
             large_misassm = int(line.strip().split()[2]) 
@@ -216,10 +217,13 @@ def parse_quast(quast_report):
         if re.match(r"# local misassemblies",line):
             local_misassm = int(line.strip().split()[3]) 
             has_ref = True
+        # for spruce
+        if re.match(r"N50",line):
+            N50 = int(line.strip().split()[1])
 
     if has_ref:
         misassm = large_misassm + local_misassm
-        return(misassm, N50, NA50, genome_size)
+        return(misassm, NG50, NGA50, genome_size)
     else:
         return('.', N50, '.', genome_size)
 
