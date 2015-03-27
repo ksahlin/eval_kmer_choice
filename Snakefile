@@ -454,7 +454,7 @@ rule QUAST:
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
         partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
         n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
-        jobname="{dataset}"+"_quast",
+        jobname="{dataset}_{tool}_{assembler}"+"_quast",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
