@@ -396,8 +396,8 @@ rule unitiger:
         shell("{env}")
         python = config["PYTHON2"]
         path=config["unitiger_rules"]["path"]
-        stdout=config["OUTBASE"]+"{dataset}/{tool}/unitiger.stdout",
-        stderr=config["OUTBASE"]+"{dataset}/{tool}/unitiger.stderr"
+        stdout=config["OUTBASE"]+"{0}/{1}/unitiger.stdout".format(wildcards.dataset, wildcards.tool)
+        stderr=config["OUTBASE"]+"{0}/{1}/unitiger.stderr".format(wildcards.dataset, wildcards.tool)
 
         shell("{time} {python} {path}Unitiger_wrapper.py -r {input.reads} -o {prefix} -k {k} -K {k} -a {a} -A {a} 1> {stdout} 2> {stderr}")   
         shell("mv {0} {1}".format(prefix+".unitigs", prefix+'.fasta'))
@@ -430,8 +430,8 @@ rule minia:
         time = config["GNUTIME"]
         prefix=config["OUTBASE"]+"{0}/{1}/minia".format(wildcards.dataset, wildcards.tool)
         k,a = get_k_and_a_for_assembler(input.params)
-        stdout=config["OUTBASE"]+"{dataset}/{tool}/minia.stdout"
-        stderr=config["OUTBASE"]+"{dataset}/{tool}/minia.stderr" 
+        stdout=config["OUTBASE"]+"{0}/{1}/minia.stdout".format(wildcards.dataset, wildcards.tool)
+        stderr=config["OUTBASE"]+"{0}/{1}/minia.stderr".format(wildcards.dataset, wildcards.tool) 
         shell("{time} minia -in {input.reads} -kmer-size {k} -abundance-min {a} -out {prefix} 1> {stdout} 2> {stderr}")   
         shell("mv {0} {1}".format(prefix+".contigs.fa", prefix+'.fasta'))
         ###########
