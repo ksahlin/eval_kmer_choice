@@ -449,8 +449,31 @@ rule minia:
         # print("{0}".format(STDERRSTRING), file=open(output.stdout, 'w') ) 
         ###########
 
+rule minia_utg:
+    input:  reads=config["INBASE"]+"{dataset}.cfg", 
+            params=config["OUTBASE"]+"{dataset}/{tool}/best_params.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
+    output: contigs=config["OUTBASE"]+"{dataset}/{tool}/minia_utg.fasta"
+    params: 
+        runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["minia_time"],
+        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
+        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
+        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
+        jobname="{dataset}_{tool}_"+"_minia_utg",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
+    run:
+        time = config["GNUTIME"]
+        prefix=config["OUTBASE"]+"{0}/{1}/minia_utg".format(wildcards.dataset, wildcards.tool)
+        k,a = get_k_and_a_for_assembler(input.params)
+        stdout=config["OUTBASE"]+"{0}/{1}/minia_utg.stdout".format(wildcards.dataset, wildcards.tool)
+        stderr=config["OUTBASE"]+"{0}/{1}/minia_utg.stderr".format(wildcards.dataset, wildcards.tool) 
+        shell("{time} minia -in {input.reads} -traversal unitig -kmer-size {k} -abundance-min {a} -out {prefix} 1> {stdout} 2> {stderr}")   
+        shell("mv {0} {1}".format(prefix+".contigs.fa", prefix+'.fasta'))
+
 rule QUAST:
-    input: contigs=config["OUTBASE"]+"{dataset}/{tool}/{assembler}.fasta"
+    input: contigs=config["OUTBASE"]+"{dataset}/{tool}/{assembler}.fasta",
+             param=config["OUTBASE"]+"{dataset}/{tool}/best_params.txt"
     output: #results=config["OUTBASE"]+"{dataset}/{tool}/QUAST/report.txt",
             nice_format=config["OUTBASE"]+"{dataset}/{tool}/result_metrics_{assembler}.csv"
     params: 
@@ -478,7 +501,8 @@ rule QUAST:
 
         misassm, N50, NA50, tot_length = parse_quast(outpath+"report.txt")
         e_size = get_esize(input.contigs)
-        print("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}".format(wildcards.dataset, wildcards.tool, e_size, tot_length, N50, misassm,  NA50), file=open(output.nice_format, 'w'))    
+        k,a = get_k_and_a_for_assembler(input.param)
+        print("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}".format(wildcards.dataset, wildcards.tool, k, a, e_size, tot_length, N50, misassm,  NA50), file=open(output.nice_format, 'w'))    
 
 
 
@@ -513,7 +537,7 @@ rule performace_latex_table:
         mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
         table_file = open(output.table, 'w')
-        print("{0} & {1} & {2} & {3} & {4} & {5} \\\ \hline".format('organism', 'tool','method', 'wall clock time', 'user time', 'peak memory'), file=table_file)
+        print("{0} & {1} & {2} & {3} & {4} & {5} \\\ \hline".format('organism', 'tool','method', 'user time', 'wall clock time', 'peak memory'), file=table_file)
         for file_ in input.files:
             line=open(file_,'r').readlines()[0]
             print("{0} & {1} & {2} & {3} & {4} & {5} \\\ \hline".format(*line.strip().split()), file=table_file)
@@ -532,7 +556,7 @@ rule quality_latex_table:
         mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
         table_file = open(output.table, 'w')
-        print("{0} & {1} & {2} & {3} & {4} & {5} & {6} \\\ \hline".format('organism', 'tool', 'E-size', 'esitmated genome size', 'N50', 'misassmblies', 'NA50'), file=table_file)
+        print("{0} & {1} & {2} & {3} & {4} & {5} & {6} \\\ \hline".format('organism', 'tool', 'k', 'a', 'E-size', 'estimated genome size', 'N50', 'misassmblies', 'NA50'), file=table_file)
         for file_ in input:
             line=open(file_,'r').readlines()[0]
             print("{0} & {1} & {2} & {3} & {4} & {5} & {6} \\\ \hline".format(*line.strip().split()), file=table_file)
