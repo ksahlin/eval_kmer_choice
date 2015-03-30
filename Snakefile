@@ -477,8 +477,61 @@ rule minia_utg:
         k,a = get_k_and_a_for_assembler(input.params)
         stdout=config["OUTBASE"]+"{0}/{1}/minia_utg.stdout".format(wildcards.dataset, wildcards.tool)
         stderr=config["OUTBASE"]+"{0}/{1}/minia_utg.stderr".format(wildcards.dataset, wildcards.tool) 
-        shell("{time} minia -in {input.reads} -traversal unitig -kmer-size {k} -abundance-min {a} -out {prefix} 1> {stdout} 2> {stderr}")   
+        shell("{time} minia -in {input.reads} -traversal unitig -starter simple -no-length-cutoff -kmer-size {k} -abundance-min {a} -out {prefix} 1> {stdout} 2> {stderr}")   
         shell("mv {0} {1}".format(prefix+".contigs.fa", prefix+'.fasta'))
+
+rule abyss:
+    input:  reads=config["INBASE"]+"{dataset}.cfg", 
+            params=config["OUTBASE"]+"{dataset}/{tool}/best_params.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
+    output: contigs=config["OUTBASE"]+"{dataset}/{tool}/abyss.fasta"
+    params: 
+        runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["abyss_time"],
+        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
+        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
+        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
+        jobname="{dataset}_{tool}_"+"_abyss",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
+    run:
+        time = config["GNUTIME"]
+        prefix=config["OUTBASE"]+"{0}/{1}/abyss".format(wildcards.dataset, wildcards.tool)
+        k,a = get_k_and_a_for_assembler(input.params)
+        stdout=config["OUTBASE"]+"{0}/{1}/abyss.stdout".format(wildcards.dataset, wildcards.tool)
+        stderr=config["OUTBASE"]+"{0}/{1}/abyss.stderr".format(wildcards.dataset, wildcards.tool) 
+        file1=shell("$(head -n 1 /home/kris/Work/optimal_k/config/staph.cfg)")
+        file2=shell("$(head -n 2 /home/kris/Work/optimal_k/config/staph.cfg)")
+        shell("abyss-pe name={prefix} k={k} in='{file1} {file2}' 1> {stdout} 2> {stderr}")  
+        shell("mv {0} {1}".format(prefix+"-contigs.fa", prefix+'.fasta'))
+
+rule velvet:
+    input:  reads=config["INBASE"]+"{dataset}.cfg", 
+            params=config["OUTBASE"]+"{dataset}/{tool}/best_params.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
+    output: contigs=config["OUTBASE"]+"{dataset}/{tool}/velvet.fasta"
+    params: 
+        runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["abyss_time"],
+        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
+        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
+        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
+        jobname="{dataset}_{tool}_"+"_abyss",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
+    run:
+        time = config["GNUTIME"]
+        prefix=config["OUTBASE"]+"{0}/{1}/velvet".format(wildcards.dataset, wildcards.tool)
+
+        k,a = get_k_and_a_for_assembler(input.params)
+        stdout=config["OUTBASE"]+"{0}/{1}/velvet.stdout".format(wildcards.dataset, wildcards.tool)
+        stderr=config["OUTBASE"]+"{0}/{1}/velvet.stderr".format(wildcards.dataset, wildcards.tool) 
+        file1=shell("$(head -n 1 /home/kris/Work/optimal_k/config/staph.cfg)")
+        interleaved_pe = os.path.join('/'.join(file1.split('/')[:-1]), "frag_merged.fastq.gz")
+        #file2=shell("$(head -n 2 /home/kris/Work/optimal_k/config/staph.cfg)")
+        #shell( "interleave-fastq  /proj/b2013169/private/data/genomes/staph/fastq/PE/frag_1.fastq.gz /proj/b2013169/private/data/genomes/staph/fastq/PE/frag_2.fastq.gz >  /proj/b2013169/private/data/genomes/staph/fastq/PE/frag_merged.fastq.gz")
+        #gzip | 
+        shell("velveth name={prefix} k={k} in='{file1} {file2}' 1> {stdout} 2> {stderr}")  
+        shell("velvetg name={prefix} k={k} in='{file1} {file2}' 1> {stdout} 2> {stderr}")  
+        shell("mv {0} {1}".format(prefix+"-contigs.fa", prefix+'.fasta'))
 
 rule QUAST:
     input: contigs=config["OUTBASE"]+"{dataset}/{tool}/{assembler}.fasta",
@@ -565,7 +618,7 @@ rule quality_latex_table:
         mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
         table_file = open(output.table, 'w')
-        print("{0} & {1} & {2} & {3} & {4} & {5} & {6} & {7} & {8} \\\ \hline".format('organism', 'tool', 'k', 'a', 'E-size', 'estimated genome size', 'N50', 'misassmblies', 'NA50'), file=table_file)
+        print("{0} & {1} & {2} & {3} & {4} & {5} & {6} & {7} & {8} \\\ \hline".format('organism', 'tool', 'k', 'a', 'E-size', 'Total contigs size', 'NG50', 'misassmblies', 'NGA50'), file=table_file)
         for file_ in input:
             line=open(file_,'r').readlines()[0]
             print("{0} & {1} & {2} & {3} & {4} & {5} & {6} & {7} & {8} \\\ \hline".format(*line.strip().split()), file=table_file)

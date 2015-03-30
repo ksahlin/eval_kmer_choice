@@ -33,7 +33,8 @@
                         "optimalk_index_time" : "30:00",
                         "optimalk_sample_time" : "7:00:00",
                         "minia_time" : "1:00:00",
-                        "velvet_time" : "3:00:00",
+                        "velvet_time" : "1-00:00:00",
+                        "abyss_time" : "5:00:00",
                         "unitiger_time" : "1:00:00",
                         "quast_time" : "30:00"
                         },
@@ -45,7 +46,8 @@
                         "optimalk_index_time" : "30:00",
                         "optimalk_sample_time" : "7:00:00",
                         "minia_time" : "3:00:00",
-                        "velvet_time" : "3:00:00",
+                        "velvet_time" : "1-00:00:00",
+                        "abyss_time" : "10:00:00",
                         "unitiger_time" : "1:00:00",
                         "quast_time" : "30:00"
                         },
@@ -57,7 +59,8 @@
                         "optimalk_index_time" : "5:00:00",
                         "optimalk_sample_time" : "7:00:00",
                         "minia_time" : "2-00:00:00",
-                        "velvet_time" : "20:00:00",
+                        "velvet_time" : "2-00:00:00",
+                        "abyss_time" : "2-00:00:00",
                         "unitiger_time" : "20:00:00",
                         "quast_time" : "1:00:00"
                          },
@@ -69,7 +72,8 @@
                         "optimalk_index_time" : "5:00:00",
                         "optimalk_sample_time" : "7:00:00",
                         "minia_time" : "2-00:00:00",
-                        "velvet_time" : "20:00:00",
+                        "velvet_time" : "2-00:00:00",
+                        "abyss_time" : "2-00:00:00",
                         "unitiger_time" : "1-05:00:00",
                         "quast_time" : "3:00:00"
                         },
@@ -81,7 +85,8 @@
                         "optimalk_index_time" : "7-00:00:00",
                         "optimalk_sample_time" : "7:00:00",
                         "minia_time" : "3-00:00:00",
-                        "velvet_time" : "3-20:00:00",
+                        "velvet_time" : "1-00:00:00",
+                        "abyss_time" : "3-20:00:00",
                         "unitiger_time" : "3-00:00:00",
                         "quast_time" : "24:00:00"
                         }
@@ -90,7 +95,7 @@
     "DATASETS" : ["staph"],
     "TOOLS" :["optimal_k", "kmergenie"],
     "METHODS" : ["sampling", "index", "default"],
-    "ASSEMBLERS" : ["unitiger", "minia", "minia_utg"],
+    "ASSEMBLERS" : ["unitiger", "minia", "minia_utg", "abyss"],
 	"LOAD_PYTHON_ENV" : "pyenv global system 3.4.1 2.7.6",
   	"INBASE" : "/home/kris/Work/optimal_k/config/", 
 	"OUTBASE" : "/proj/b2013169/private/data/optimal_k/", 
