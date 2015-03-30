@@ -565,10 +565,10 @@ rule quality_latex_table:
         mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
         table_file = open(output.table, 'w')
-        print("{0} & {1} & {2} & {3} & {4} & {5} & {6} \\\ \hline".format('organism', 'tool', 'k', 'a', 'E-size', 'estimated genome size', 'N50', 'misassmblies', 'NA50'), file=table_file)
+        print("{0} & {1} & {2} & {3} & {4} & {5} & {6} & {7} & {8} \\\ \hline".format('organism', 'tool', 'k', 'a', 'E-size', 'estimated genome size', 'N50', 'misassmblies', 'NA50'), file=table_file)
         for file_ in input:
             line=open(file_,'r').readlines()[0]
-            print("{0} & {1} & {2} & {3} & {4} & {5} & {6} \\\ \hline".format(*line.strip().split()), file=table_file)
+            print("{0} & {1} & {2} & {3} & {4} & {5} & {6} & {7} & {8} \\\ \hline".format(*line.strip().split()), file=table_file)
 
 
 
