@@ -92,7 +92,7 @@
                         }
     },
 
-    "DATASETS" : ["staph"],
+    "DATASETS" : ["staph", "rhodo"],
     "TOOLS" :["optimal_k", "kmergenie"],
     "METHODS" : ["sampling", "index", "default"],
     "ASSEMBLERS" : ["unitiger", "minia", "minia_utg", "abyss"],
