@@ -267,6 +267,15 @@ rule all:
     input:
         config["OUTBASE"]+"performance_table.tex",        
         expand(config["OUTBASE"]+"quality_table_{assembler}.tex", assembler=config["ASSEMBLERS"])
+    params: 
+        runtime="15:00",
+        memsize = "mem128GB",
+        partition = "core",
+        n = "1",
+        jobname="all",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
 
 rule optimal_k_index:
     input: reads=config["INBASE"]+"{dataset}.cfg"
