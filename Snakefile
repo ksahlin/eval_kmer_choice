@@ -494,8 +494,7 @@ rule abyss:
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
-        shell("module add bioinfo-tools")
-        shell("module add abyss/1.3.7-max")
+        shell("module add bioinfo-tools abyss/1.3.7-max")
         time = config["GNUTIME"]
         prefix=config["OUTBASE"]+"{0}/{1}/abyss".format(wildcards.dataset, wildcards.tool)
         k,a = get_k_and_a_for_assembler(input.params)
