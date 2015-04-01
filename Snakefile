@@ -501,7 +501,7 @@ rule abyss:
         stderr=config["OUTBASE"]+"{0}/{1}/abyss.stderr".format(wildcards.dataset, wildcards.tool) 
         file1 = list(shell("head -n 1 {input.reads}", iterable=True))[0]
         file2 = list(shell("head -n 2 {input.reads}", iterable=True))[1]
-        shell("abyss-pe name={prefix} k={k} in='{file1} {file2}' 1> {stdout} 2> {stderr}")  
+        shell("abyss-pe {prefix} {k} {file1} {file2} 1> {stdout} 2> {stderr}")  
         shell("mv {0} {1}".format(prefix+"-contigs.fa", prefix+'.fasta'))
 
 rule velvet:
