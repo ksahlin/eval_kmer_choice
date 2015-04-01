@@ -343,7 +343,7 @@ rule optimal_k_sampling:
         max_objective = 0
         best_k = 0
         best_a = 0
-        find_k = config["optimal_k_rules"]["path"]+"/scripts/fit_curve.py"
+        find_k = config["optimal_k_rules"]["script_path"]+"fit_curve.py"
         python = config["PYTHON2"]
         for abundance in range(int(min_a),int(max_a)):
             csv_file = prefix+".a{0}.csv".format(abundance)
