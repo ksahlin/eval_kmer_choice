@@ -9,7 +9,7 @@
     },
     "optimal_k_rules" : {
         "path" : "/home/kris/bin/optimal-k",
-        "script_path" : "/home/kris/git_repos/optimal_k/scripts/"
+        "script_path" : "/home/kris/git_repos/optimal_k/scripts/",
         "min_abundance" : "1",
         "max_abundance" : "5"
     },
