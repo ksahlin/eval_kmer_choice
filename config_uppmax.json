@@ -24,7 +24,7 @@
             "spruce" : ""
     },
     "SBATCH" : {
-            "ACCOUNT" : "b2013169",
+            "ACCOUNT" : "b2010042",
             "MAIL" : "kristoffer.sahlin@scilifelab.se",
             "MAIL_TYPE" : "FAIL",
             "staph" : { "partition" : "node", 
