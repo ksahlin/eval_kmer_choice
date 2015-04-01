@@ -348,7 +348,10 @@ rule optimal_k_sampling:
         for abundance in range(int(min_a),int(max_a)):
             csv_file = prefix+".a{0}.csv".format(abundance)
             #k, objective = get_optimal_k_params(csv_file)
-            k, objective = list(shell("{python} {find_k} {csv_file}", iterable=True))
+            k, objective = list(shell("{python} {find_k} {csv_file}", iterable=True))[0].split()
+            k = int(k)
+            objective = float(objective)
+            
             if objective > max_objective:
                 best_k = k
                 best_a = abundance
