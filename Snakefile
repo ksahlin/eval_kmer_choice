@@ -327,7 +327,7 @@ rule optimal_k_sampling:
         max_a = config["optimal_k_rules"]["max_abundance"]
         index_path=config["OUTBASE"]+"{0}/optimal_k/index".format(wildcards.dataset)
 
-        shell(" {time} optimal-k -r {input.reads}  --loadindex {index_path} -a {min_a} -A {max_a} -o {prefix} 1> {output.stdout} 2> {output.stderr}")
+        #shell(" {time} optimal-k -r {input.reads}  --loadindex {index_path} -a {min_a} -A {max_a} -o {prefix} 1> {output.stdout} 2> {output.stderr}")
 
 
         # ###########
@@ -343,8 +343,12 @@ rule optimal_k_sampling:
         max_objective = 0
         best_k = 0
         best_a = 0
+        find_k = config["optimal_k_rules"]["path"]+"/scripts/fit_curve.py"
+        python = config["PYTHON2"]
         for abundance in range(int(min_a),int(max_a)):
-            k, objective = get_optimal_k_params(prefix+".a{0}.csv".format(abundance))
+            csv_file = prefix+".a{0}.csv".format(abundance)
+            #k, objective = get_optimal_k_params(csv_file)
+            k, objective = list(shell("{python} {find_k} {csv_file}", iterable=True))
             if objective > max_objective:
                 best_k = k
                 best_a = abundance
@@ -518,8 +522,6 @@ rule velvet:
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
-        shell("module add bioinfo-tools")
-        shell("velvet/1.2.10")
         time = config["GNUTIME"]
         prefix=config["OUTBASE"]+"{0}/{1}/velvet".format(wildcards.dataset, wildcards.tool)
 
