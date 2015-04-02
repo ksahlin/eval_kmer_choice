@@ -517,7 +517,10 @@ rule abyss:
         file1 = list(shell("head -n 1 {input.reads}", iterable=True))[0]
         file2 = list(shell("head -n 2 {input.reads}", iterable=True))[1]
         shell("abyss-pe {prefix} {k} {file1} {file2} 2>&1 | tee -a {stderr}")  
-        shell("mv {0} {1}".format(prefix+"-contigs.fa", prefix+'.fasta'))
+        #shell("mv {0} {1}".format(prefix+"-contigs.fa", prefix+'.fasta'))
+        # Apperently, abyss-contigs.fa is a symlink to abyss-6.fa, so we 
+        # mv abyss-6.fa file instead
+        shell("mv {0} {1}".format(prefix+"-6.fa", prefix+'.fasta'))
 
 rule velvet:
     input:  reads=config["INBASE"]+"{dataset}.cfg", 
