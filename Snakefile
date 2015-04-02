@@ -452,7 +452,7 @@ rule minia:
         k,a = get_k_and_a_for_assembler(input.params)
         # stdout=config["OUTBASE"]+"{0}/{1}/minia.stdout".format(wildcards.dataset, wildcards.tool)
         stderr=config["OUTBASE"]+"{0}/{1}/minia.stderr".format(wildcards.dataset, wildcards.tool) 
-        shell("{time} minia -in {input.reads} -kmer-size {k} -abundance-min {a} -out {prefix} 2>&1 | tee -a {stderr}")   
+        shell("{time} minia -in {input.reads} -kmer-size {k} -abundance-min {a} -no-length-cutoff -out {prefix} 2>&1 | tee -a {stderr}")   
         shell("mv {0} {1}".format(prefix+".contigs.fa", prefix+'.fasta'))
         ###########
         # for testing on mac:
