@@ -416,11 +416,11 @@ rule unitiger:
         shell("{env}")
         python = config["PYTHON2"]
         path=config["unitiger_rules"]["path"]
-        stdout=config["OUTBASE"]+"{0}/{1}/unitiger.stdout".format(wildcards.dataset, wildcards.tool)
+        # stdout=config["OUTBASE"]+"{0}/{1}/unitiger.stdout".format(wildcards.dataset, wildcards.tool)
         stderr=config["OUTBASE"]+"{0}/{1}/unitiger.stderr".format(wildcards.dataset, wildcards.tool)
 
-        shell("{time} {python} {path}Unitiger_wrapper.py -r {input.reads} -o {prefix} -k {k} -K {k} -a {a} -A {a} 1> {stdout} 2> {stderr}")   
-        shell("mv {0} {1}".format(prefix+".unitigs", prefix+'.fasta'))
+        shell("{time} {python} {path}Unitiger_wrapper.py -r {input.reads} -o {prefix} -k {k} -K {k} -a {a} -A {a} 2>&1 | tee -a {stderr}")   
+        shell("mv {0} {1}".format(prefix+".k{0}.a{1}.unitigs".format(k,a), prefix+'.fasta'))
 
         ###########
         # for testing on mac:
@@ -450,9 +450,9 @@ rule minia:
         time = config["GNUTIME"]
         prefix=config["OUTBASE"]+"{0}/{1}/minia".format(wildcards.dataset, wildcards.tool)
         k,a = get_k_and_a_for_assembler(input.params)
-        stdout=config["OUTBASE"]+"{0}/{1}/minia.stdout".format(wildcards.dataset, wildcards.tool)
+        # stdout=config["OUTBASE"]+"{0}/{1}/minia.stdout".format(wildcards.dataset, wildcards.tool)
         stderr=config["OUTBASE"]+"{0}/{1}/minia.stderr".format(wildcards.dataset, wildcards.tool) 
-        shell("{time} minia -in {input.reads} -kmer-size {k} -abundance-min {a} -out {prefix} 1> {stdout} 2> {stderr}")   
+        shell("{time} minia -in {input.reads} -kmer-size {k} -abundance-min {a} -out {prefix} 2>&1 | tee -a {stderr}")   
         shell("mv {0} {1}".format(prefix+".contigs.fa", prefix+'.fasta'))
         ###########
         # for testing on mac:
@@ -482,9 +482,9 @@ rule minia_utg:
         time = config["GNUTIME"]
         prefix=config["OUTBASE"]+"{0}/{1}/minia_utg".format(wildcards.dataset, wildcards.tool)
         k,a = get_k_and_a_for_assembler(input.params)
-        stdout=config["OUTBASE"]+"{0}/{1}/minia_utg.stdout".format(wildcards.dataset, wildcards.tool)
+        # stdout=config["OUTBASE"]+"{0}/{1}/minia_utg.stdout".format(wildcards.dataset, wildcards.tool)
         stderr=config["OUTBASE"]+"{0}/{1}/minia_utg.stderr".format(wildcards.dataset, wildcards.tool) 
-        shell("{time} minia -in {input.reads} -traversal unitig -starter simple -no-length-cutoff -kmer-size {k} -abundance-min {a} -out {prefix} 1> {stdout} 2> {stderr}")   
+        shell("{time} minia -in {input.reads} -traversal unitig -starter simple -no-length-cutoff -kmer-size {k} -abundance-min {a} -out {prefix} 2>&1 | tee -a {stderr}")   
         shell("mv {0} {1}".format(prefix+".contigs.fa", prefix+'.fasta'))
 
 rule abyss:
@@ -504,11 +504,11 @@ rule abyss:
         time = config["GNUTIME"]
         prefix=config["OUTBASE"]+"{0}/{1}/abyss".format(wildcards.dataset, wildcards.tool)
         k,a = get_k_and_a_for_assembler(input.params)
-        stdout=config["OUTBASE"]+"{0}/{1}/abyss.stdout".format(wildcards.dataset, wildcards.tool)
+        # stdout=config["OUTBASE"]+"{0}/{1}/abyss.stdout".format(wildcards.dataset, wildcards.tool)
         stderr=config["OUTBASE"]+"{0}/{1}/abyss.stderr".format(wildcards.dataset, wildcards.tool) 
         file1 = list(shell("head -n 1 {input.reads}", iterable=True))[0]
         file2 = list(shell("head -n 2 {input.reads}", iterable=True))[1]
-        shell("abyss-pe {prefix} {k} {file1} {file2} 1> {stdout} 2> {stderr}")  
+        shell("abyss-pe {prefix} {k} {file1} {file2} 2>&1 | tee -a {stderr}")  
         shell("mv {0} {1}".format(prefix+"-contigs.fa", prefix+'.fasta'))
 
 rule velvet:
