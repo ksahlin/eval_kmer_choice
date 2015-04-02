@@ -521,7 +521,8 @@ rule abyss:
         # Apperently, abyss-contigs.fa is a symlink to abyss-6.fa, so we 
         # mv abyss-6.fa file instead
         shell("mv {0} {1}".format(prefix+"-6.fa", prefix+'.fasta'))
-
+        shell("touch {0} ".format(prefix+'.fasta'))
+        
 rule velvet:
     input:  reads=config["INBASE"]+"{dataset}.cfg", 
             params=config["OUTBASE"]+"{dataset}/{tool}/best_params.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
