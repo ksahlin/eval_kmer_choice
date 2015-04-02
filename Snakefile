@@ -223,6 +223,14 @@ def parse_quast(quast_report):
 
     if has_ref:
         misassm = large_misassm + local_misassm
+        try:
+            NGA50
+        except UnboundLocalError:
+            NGA50 = "."
+        try:
+            NG50
+        except UnboundLocalError:
+            NG50 = "."
         return(misassm, NG50, NGA50, genome_size)
     else:
         return('.', N50, '.', genome_size)
