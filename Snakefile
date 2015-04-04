@@ -447,9 +447,9 @@ rule minia:
     output: contigs=config["OUTBASE"]+"{dataset}/{tool}/minia.fasta"
     params: 
         runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["minia_time"],
-        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_memsize"],
-        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_partition"],
-        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_n"],
+        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
+        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
+        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
         jobname="{dataset}_{tool}_"+"_minia",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
