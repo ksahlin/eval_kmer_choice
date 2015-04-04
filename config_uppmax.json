@@ -40,7 +40,7 @@
                         "quast_time" : "30:00",
                         "small_partition" : "core", 
                         "small_n" : "1",
-                        "small_memsize" : "mem128GB|mem256GB|mem512GB"
+                        "small_memsize" : "'mem128GB|mem256GB|mem512GB'"
                         },
 
             "rhodo" : { "partition" : "node", 
@@ -56,7 +56,7 @@
                         "quast_time" : "30:00",
                         "small_partition" : "core", 
                         "small_n" : "1",
-                        "small_memsize" : "mem128GB|mem256GB|mem512GB"
+                        "small_memsize" : "'mem128GB|mem256GB|mem512GB'"
                         },
 
             "plasm" : { "partition" : "node", 
@@ -72,7 +72,7 @@
                         "quast_time" : "1:00:00",
                         "small_partition" : "core", 
                         "small_n" : "2",
-                        "small_memsize" : "mem128GB|mem256GB|mem512GB"
+                        "small_memsize" : "'mem128GB|mem256GB|mem512GB'"
                          },
 
             "hs14" : { "partition" : "node", 
@@ -88,7 +88,7 @@
                         "quast_time" : "3:00:00",
                         "small_partition" : "core", 
                         "small_n" : "2",
-                        "small_memsize" : "mem128GB|mem256GB|mem512GB"
+                        "small_memsize" : "'mem128GB|mem256GB|mem512GB'"
                         },
 
             "spruce" : { "partition" : "node", 
@@ -104,7 +104,7 @@
                         "quast_time" : "24:00:00",
                         "small_partition" : "node", 
                         "small_n" : "1",
-                        "small_memsize" : "mem128GB|mem256GB|mem512GB"
+                        "small_memsize" : "'mem128GB|mem256GB|mem512GB'"
                         }
     },
 
