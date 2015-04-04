@@ -277,7 +277,7 @@ rule all:
         expand(config["OUTBASE"]+"quality_table_{assembler}.tex", assembler=config["ASSEMBLERS"])
     params: 
         runtime="15:00",
-        memsize = "mem128GB",
+        memsize = "mem128GB|mem256GB|mem512GB",
         partition = "core",
         n = "1",
         jobname="all",
@@ -377,9 +377,9 @@ rule kmergenie:
 
     params: 
         runtime=lambda wildcards: config["SBATCH"][wildcards.dataset]["kmergenie_time"],
-        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
-        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
-        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
+        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_memsize"],
+        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_partition"],
+        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_n"],
         jobname="{dataset}"+"_kmergenie",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
@@ -447,9 +447,9 @@ rule minia:
     output: contigs=config["OUTBASE"]+"{dataset}/{tool}/minia.fasta"
     params: 
         runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["minia_time"],
-        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
-        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
-        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
+        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_memsize"],
+        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_partition"],
+        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_n"],
         jobname="{dataset}_{tool}_"+"_minia",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
@@ -479,9 +479,9 @@ rule minia_utg:
     output: contigs=config["OUTBASE"]+"{dataset}/{tool}/minia_utg.fasta"
     params: 
         runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["minia_time"],
-        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
-        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
-        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
+        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_memsize"],
+        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_partition"],
+        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_n"],
         jobname="{dataset}_{tool}_"+"_minia_utg",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
@@ -530,7 +530,7 @@ rule velvet:
             params=config["OUTBASE"]+"{dataset}/{tool}/best_params.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
     output: contigs=config["OUTBASE"]+"{dataset}/{tool}/velvet.fasta"
     params: 
-        runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["abyss_time"],
+        runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["velvets_time"],
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
         partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
         n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
@@ -561,9 +561,9 @@ rule QUAST:
             nice_format=config["OUTBASE"]+"{dataset}/{tool}/result_metrics_{assembler}.csv"
     params: 
         runtime=lambda wildcards: config["SBATCH"][wildcards.dataset]["quast_time"],
-        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
-        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
-        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
+        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_memsize"],
+        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_partition"],
+        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_n"],
         jobname="{dataset}_{tool}_{assembler}"+"_quast",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
@@ -594,7 +594,7 @@ rule time_and_mem:
     output: outfile=config["OUTBASE"]+"{dataset}/{tool}/{method}_time_and_mem.txt"
     params: 
         runtime="15:00",
-        memsize = "mem128GB",
+        memsize = "mem128GB|mem256GB|mem512GB",
         partition = "core",
         n = "1",
         jobname="{dataset}"+"_time_and_mem",
@@ -611,7 +611,7 @@ rule performace_latex_table:
     output: table=config["OUTBASE"]+"performance_table.tex"
     params: 
         runtime="15:00",
-        memsize = "mem128GB",
+        memsize = "mem128GB|mem256GB|mem512GB",
         partition = "core",
         n = "1",
         jobname="performace_latex_table",
@@ -630,7 +630,7 @@ rule quality_latex_table:
     output: table=config["OUTBASE"]+"quality_table_{assembler}.tex"
     params: 
         runtime="15:00",
-        memsize = "mem128GB",
+        memsize = "mem128GB|mem256GB|mem512GB",
         partition = "core",
         n = "1",
         jobname="quality_latex_table",
