@@ -277,7 +277,7 @@ rule all:
         expand(config["OUTBASE"]+"quality_table_{assembler}.tex", assembler=config["ASSEMBLERS"])
     params: 
         runtime="15:00",
-        memsize = "mem128GB|mem256GB|mem512GB",
+        memsize = "'mem128GB|mem256GB|mem512GB'",
         partition = "core",
         n = "1",
         jobname="all",
@@ -594,7 +594,7 @@ rule time_and_mem:
     output: outfile=config["OUTBASE"]+"{dataset}/{tool}/{method}_time_and_mem.txt"
     params: 
         runtime="15:00",
-        memsize = "mem128GB|mem256GB|mem512GB",
+        memsize = "'mem128GB|mem256GB|mem512GB'",
         partition = "core",
         n = "1",
         jobname="{dataset}"+"_time_and_mem",
@@ -611,7 +611,7 @@ rule performace_latex_table:
     output: table=config["OUTBASE"]+"performance_table.tex"
     params: 
         runtime="15:00",
-        memsize = "mem128GB|mem256GB|mem512GB",
+        memsize = "'mem128GB|mem256GB|mem512GB'",
         partition = "core",
         n = "1",
         jobname="performace_latex_table",
@@ -630,7 +630,7 @@ rule quality_latex_table:
     output: table=config["OUTBASE"]+"quality_table_{assembler}.tex"
     params: 
         runtime="15:00",
-        memsize = "mem128GB|mem256GB|mem512GB",
+        memsize = "'mem128GB|mem256GB|mem512GB'",
         partition = "core",
         n = "1",
         jobname="quality_latex_table",
