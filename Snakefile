@@ -578,9 +578,9 @@ rule QUAST:
         outpath="{0}/{1}/{2}/{3}/QUAST/".format(out, wildcards.dataset,wildcards.tool, wildcards.assembler)
         reference = config["REFERENCES"][wildcards.dataset]
         if wildcards.dataset == "spruce":
-            shell(" {python} {path}quast.py -o {outpath} --min-contig 30 --no-plots {input.contigs}") 
+            shell(" {python} {path}quast.py -o {outpath} --min-contig 200 --no-plots {input.contigs}") 
         else:
-            shell(" {python} {path}quast.py -R  {reference} -o {outpath} --min-contig 30 --no-plots {input.contigs} ") 
+            shell(" {python} {path}quast.py -R  {reference} -o {outpath} --min-contig 200 --no-plots {input.contigs} ") 
 
         misassm, N50, NA50, tot_length = parse_quast(outpath+"report.txt")
         e_size = get_esize(input.contigs)

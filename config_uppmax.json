@@ -69,7 +69,7 @@
                         "velvet_time" : "2-00:00:00",
                         "abyss_time" : "2-00:00:00",
                         "unitiger_time" : "20:00:00",
-                        "quast_time" : "1:00:00",
+                        "quast_time" : "5:00:00",
                         "small_partition" : "core", 
                         "small_n" : "2",
                         "small_memsize" : "'mem128GB|mem256GB|mem512GB'"
@@ -85,7 +85,7 @@
                         "velvet_time" : "2-00:00:00",
                         "abyss_time" : "2-00:00:00",
                         "unitiger_time" : "1-05:00:00",
-                        "quast_time" : "7:00:00",
+                        "quast_time" : "24:00:00",
                         "small_partition" : "core", 
                         "small_n" : "4",
                         "small_memsize" : "'mem128GB|mem256GB|mem512GB'"
