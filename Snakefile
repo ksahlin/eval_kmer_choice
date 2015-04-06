@@ -287,9 +287,9 @@ rule all:
 
 rule optimal_k_index:
     input: reads=config["INBASE"]+"{dataset}.cfg"
-    output: index=config["OUTBASE"]+"{dataset}/optimal_k/index.rlcsa.array", 
-            stderr=config["OUTBASE"]+"{dataset}/optimal_k/index.stderr", 
-            stdout=config["OUTBASE"]+"{dataset}/optimal_k/index.stdout"
+    output: index=protected(config["OUTBASE"]+"{dataset}/optimal_k/index.rlcsa.array"), 
+            stderr=protected(config["OUTBASE"]+"{dataset}/optimal_k/index.stderr"), 
+            stdout=protected(config["OUTBASE"]+"{dataset}/optimal_k/index.stdout")
     version: OPTIMAL_K_VERSION
     params: 
         runtime = lambda wildcards: config["SBATCH"][wildcards.dataset]["optimalk_index_time"],
@@ -411,7 +411,7 @@ rule unitiger:
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
         partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
         n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
-        jobname="{dataset}_{tool}_"+"_unitiger",
+        jobname="{dataset}_{tool}"+"_unitiger",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
@@ -424,10 +424,9 @@ rule unitiger:
         shell("{env}")
         python = config["PYTHON2"]
         path=config["unitiger_rules"]["path"]
-        # stdout=config["OUTBASE"]+"{0}/{1}/unitiger.stdout".format(wildcards.dataset, wildcards.tool)
         stderr=config["OUTBASE"]+"{0}/{1}/unitiger.stderr".format(wildcards.dataset, wildcards.tool)
-
-        shell("{time} {python} {path}Unitiger_wrapper.py -r {input.reads} -o {prefix} -k {k} -K {k} -a {a} -A {a} 2>&1 | tee -a {stderr}")   
+        #shell("{time} {python} {path}Unitiger_wrapper.py -r {input.reads} -o {prefix} -k {k} -K {k} -a {a} -A {a} 2>&1 | tee -a {stderr}")   
+        shell("{time} {path}Unitiger -r {input.reads} -o {prefix} -k {k} -a {a} -t 0 2>&1 | tee -a {stderr}")   
         shell("mv {0} {1}".format(prefix+".k{0}.a{1}.unitigs".format(k,a), prefix+'.fasta'))
 
         ###########
@@ -450,7 +449,7 @@ rule minia:
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_memsize"],
         partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
         n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
-        jobname="{dataset}_{tool}_"+"_minia",
+        jobname="{dataset}_{tool}"+"_minia",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
@@ -564,7 +563,7 @@ rule QUAST:
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_memsize"],
         partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_partition"],
         n = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_n"],
-        jobname="{dataset}_{tool}_{assembler}"+"_quast",
+        jobname="quast_{dataset}_{tool}_{assembler}",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
