@@ -108,7 +108,7 @@
                         }
     },
 
-    "DATASETS" : ["staph", "rhodo", "plasm", "hs14"],
+    "DATASETS" : ["staph", "rhodo", "plasm", "hs14", "spruce"],
     "TOOLS" :["optimal_k", "kmergenie"],
     "METHODS" : ["sampling", "index", "default"],
     "ASSEMBLERS" : ["unitiger", "minia", "minia_utg", "abyss"],
