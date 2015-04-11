@@ -293,7 +293,7 @@ rule sampling:
         memsize = "'mem128GB|mem256GB|mem512GB'",
         partition = "core",
         n = "1",
-        jobname="all",
+        jobname="sampling",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
