@@ -285,6 +285,19 @@ rule all:
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
 
+rule sampling:
+    input:
+        best_params=expand(config["OUTBASE"]+"{dataset}/optimal_k/best_params.txt", dataset = config["DATASETS"])       
+    params: 
+        runtime="15:00",
+        memsize = "'mem128GB|mem256GB|mem512GB'",
+        partition = "core",
+        n = "1",
+        jobname="all",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
+
 rule optimal_k_index:
     input: reads=config["INBASE"]+"{dataset}.cfg"
     output: index=protected(config["OUTBASE"]+"{dataset}/optimal_k/index.rlcsa.array"), 
