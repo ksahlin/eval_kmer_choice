@@ -350,7 +350,7 @@ rule optimal_k_sampling:
         index_path=config["OUTBASE"]+"{0}/optimal_k/index".format(wildcards.dataset)
 
         shell(" {time} optimal-k -r {input.reads}  --loadindex {index_path} -a {min_a} -A {max_a} -o {prefix} -s 50000 1> {output.stdout} 2> {output.stderr}")
-        shel("touch {output.complete}")
+        shell("touch {output.complete}")
 
         # ###########
         # # for testing on mac:
