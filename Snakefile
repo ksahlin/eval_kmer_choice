@@ -301,8 +301,8 @@ rule sampling:
 rule optimal_k_index:
     input: reads=config["INBASE"]+"{dataset}.cfg"
     output: index=protected(config["OUTBASE"]+"{dataset}/optimal_k/index.rlcsa.array"), 
-            stderr=protected(config["OUTBASE"]+"{dataset}/optimal_k/index.stderr"), 
-            stdout=protected(config["OUTBASE"]+"{dataset}/optimal_k/index.stdout")
+            stderr=config["OUTBASE"]+"{dataset}/optimal_k/index.stderr", 
+            stdout=config["OUTBASE"]+"{dataset}/optimal_k/index.stdout"
     version: OPTIMAL_K_VERSION
     params: 
         runtime = lambda wildcards: config["SBATCH"][wildcards.dataset]["optimalk_index_time"],
@@ -330,7 +330,8 @@ rule optimal_k_sampling:
     input: reads=config["INBASE"]+"{dataset}.cfg", index=config["OUTBASE"]+"{dataset}/optimal_k/index.rlcsa.array"
     output: stderr=config["OUTBASE"]+"{dataset}/optimal_k/sampling.stderr", 
             stdout=config["OUTBASE"]+"{dataset}/optimal_k/sampling.stdout",
-            best_params=config["OUTBASE"]+"{dataset}/optimal_k/best_params.txt"
+            complete=config["OUTBASE"]+"{dataset}/optimal_k/sampling_ok.txt",
+            #best_params=config["OUTBASE"]+"{dataset}/optimal_k/best_params.txt"
     version: OPTIMAL_K_VERSION
     params: 
         runtime= lambda wildcards: config["SBATCH"][wildcards.dataset]["optimalk_sample_time"],
@@ -349,7 +350,7 @@ rule optimal_k_sampling:
         index_path=config["OUTBASE"]+"{0}/optimal_k/index".format(wildcards.dataset)
 
         shell(" {time} optimal-k -r {input.reads}  --loadindex {index_path} -a {min_a} -A {max_a} -o {prefix} -s 50000 1> {output.stdout} 2> {output.stderr}")
-
+        shel("touch {output.complete}")
 
         # ###########
         # # for testing on mac:
@@ -361,6 +362,34 @@ rule optimal_k_sampling:
         # print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
         # ###########
 
+        # max_objective = 0
+        # best_k = 0
+        # best_a = 0
+        # find_k = config["optimal_k_rules"]["script_path"]+"fit_curve.py"
+        # python = config["PYTHON2"]
+        # for abundance in range(int(min_a),int(max_a)+1):
+        #     csv_file = prefix+".a{0}.csv".format(abundance)
+        #     #k, objective = get_optimal_k_params(csv_file)
+        #     k, objective = list(shell("{python} {find_k} {csv_file}", iterable=True))[0].split()
+        #     k = int(float(k))
+        #     objective = float(objective)
+
+        #     if objective > max_objective:
+        #         best_k = k
+        #         best_a = abundance
+        #         max_objective = objective
+
+        # shell("echo {0} {1} > {{output.best_params}} ".format(best_k,best_a))
+
+
+
+rule get_best_params:
+    input: config["OUTBASE"]+"{dataset}/optimal_k/sampling_ok.txt"
+    output: best_params=config["OUTBASE"]+"{dataset}/optimal_k/best_params.txt"
+    run:
+        prefix=config["OUTBASE"]+"{0}/optimal_k/sampling".format(wildcards.dataset)
+        min_a = config["optimal_k_rules"]["min_abundance"]
+        max_a = config["optimal_k_rules"]["max_abundance"]
         max_objective = 0
         best_k = 0
         best_a = 0
@@ -368,7 +397,6 @@ rule optimal_k_sampling:
         python = config["PYTHON2"]
         for abundance in range(int(min_a),int(max_a)+1):
             csv_file = prefix+".a{0}.csv".format(abundance)
-            #k, objective = get_optimal_k_params(csv_file)
             k, objective = list(shell("{python} {find_k} {csv_file}", iterable=True))[0].split()
             k = int(float(k))
             objective = float(objective)
@@ -379,6 +407,7 @@ rule optimal_k_sampling:
                 max_objective = objective
 
         shell("echo {0} {1} > {{output.best_params}} ".format(best_k,best_a))
+
 
 rule kmergenie:
     input: reads=config["INBASE"]+"{dataset}.cfg"
