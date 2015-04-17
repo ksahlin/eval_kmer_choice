@@ -317,7 +317,11 @@ rule optimal_k_index:
         time=config["GNUTIME"]
         runtime=config["SBATCH"][wildcards.dataset]["optimalk_index_time"]
         index_path=config["OUTBASE"]+"{0}/optimal_k/index".format(wildcards.dataset)
-        shell(" {time} optimal-k -r {input.reads}  --buildindex {index_path} 1> {output.stdout} 2> {output.stderr}")
+        stderr=config["OUTBASE"]+"{0}/optimal_k/index_tmp.stderr".format(wildcards.dataset) 
+        stdout=config["OUTBASE"]+"{0}/optimal_k/index_tmp.stdout".format(wildcards.dataset)
+        shell(" {time} optimal-k -r {input.reads}  --buildindex {index_path} 1> {stdout} 2> {stderr}")
+        shell("cp {stdout} {output.stdout} ")
+        shell("cp {stderr} {output.stderr} ")
 
         ###########
         # for testing on mac:
