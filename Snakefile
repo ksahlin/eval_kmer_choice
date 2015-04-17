@@ -390,6 +390,15 @@ rule optimal_k_sampling:
 rule get_best_params:
     input: config["OUTBASE"]+"{dataset}/optimal_k/sampling_ok.txt"
     output: best_params=config["OUTBASE"]+"{dataset}/optimal_k/best_params.txt"
+    params: 
+        runtime="10:00",
+        memsize = "'mem128GB|mem256GB|mem512GB'",
+        partition = "core",
+        n = "1",
+        jobname="get_best_params",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
         prefix=config["OUTBASE"]+"{0}/optimal_k/sampling".format(wildcards.dataset)
         min_a = config["optimal_k_rules"]["min_abundance"]
