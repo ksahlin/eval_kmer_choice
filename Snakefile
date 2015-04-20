@@ -298,6 +298,8 @@ rule sampling:
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
 
+
+
 rule optimal_k_index:
     input: reads=config["INBASE"]+"{dataset}.cfg"
     output: index=protected(config["OUTBASE"]+"{dataset}/optimal_k/index.rlcsa.array"), 
@@ -570,7 +572,7 @@ rule abyss:
         stderr=config["OUTBASE"]+"{0}/{1}/abyss.stderr".format(wildcards.dataset, wildcards.tool) 
         file1 = list(shell("head -n 1 {input.reads}", iterable=True))[0]
         file2 = list(shell("head -n 2 {input.reads}", iterable=True))[1]
-        shell("abyss-pe {prefix} {k} {file1} {file2} 2>&1 | tee -a {stderr}")  
+        shell("abyss-pe {prefix} {k} {file1} {file2} --always-make 2>&1 | tee -a {stderr}")  
         #shell("mv {0} {1}".format(prefix+"-contigs.fa", prefix+'.fasta'))
         # Apperently, abyss-contigs.fa is a symlink to abyss-6.fa, so we 
         # mv abyss-6.fa file instead
@@ -633,6 +635,9 @@ rule QUAST:
         reference = config["REFERENCES"][wildcards.dataset]
         if wildcards.dataset == "spruce":
             shell(" {python} {path}quast.py -o {outpath} --min-contig 200 --no-plots {input.contigs}") 
+        elif wildcards.dataset == "hs14":
+            shell(" {python} {path}quast.py -o {outpath} --min-contig 100 --no-plots {input.contigs}") 
+
         else:
             shell(" {python} {path}quast.py -R  {reference} -o {outpath} --min-contig 30 --no-plots {input.contigs} ") 
 
