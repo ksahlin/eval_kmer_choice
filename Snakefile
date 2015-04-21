@@ -355,7 +355,7 @@ rule optimal_k_sampling:
         max_a = config["optimal_k_rules"]["max_abundance"]
         index_path=config["OUTBASE"]+"{0}/optimal_k/index".format(wildcards.dataset)
 
-        shell(" {time} optimal-k -r {input.reads}  --loadindex {index_path} -a {min_a} -A {max_a} -o {prefix} -s 50000 1> {output.stdout} 2> {output.stderr}")
+        shell(" {time} optimal-k -r {input.reads}  --loadindex {index_path} -a {min_a} -A {max_a} -o {prefix} -s 100000 1> {output.stdout} 2> {output.stderr}")
         shell("touch {output.complete}")
 
         # ###########
@@ -579,7 +579,7 @@ rule abyss:
         # we update the timestamp on the output of rule abyss so the snakemake does not return
         # "Output files ... are older than input files.". Unsure why this happens.
         shell("touch {0} ".format(prefix+'.fasta'))
-        abyss_output= prefix+'-'
+        abyss_output= prefix+'-*'
         shell("rm {abyss_output}")
 
 rule velvet:
@@ -587,7 +587,7 @@ rule velvet:
             params=config["OUTBASE"]+"{dataset}/{tool}/best_params.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
     output: contigs=config["OUTBASE"]+"{dataset}/{tool}/velvet.fasta"
     params: 
-        runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["velvets_time"],
+        runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["velvet_time"],
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
         partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
         n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
