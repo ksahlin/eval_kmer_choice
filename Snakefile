@@ -560,7 +560,7 @@ rule abyss:
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
         partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
         n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
-        jobname="{dataset}_{tool}_"+"_abyss",
+        jobname="{dataset}_{tool}_"+"abyss",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
@@ -591,7 +591,7 @@ rule velvet:
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
         partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
         n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
-        jobname="{dataset}_{tool}_"+"_abyss",
+        jobname="{dataset}_{tool}_"+"velvet",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"],
@@ -606,8 +606,8 @@ rule velvet:
         stdout=config["OUTBASE"]+"{0}/{1}/velvet.stdout".format(wildcards.dataset, wildcards.tool)
         stderr=config["OUTBASE"]+"{0}/{1}/velvet.stderr".format(wildcards.dataset, wildcards.tool) 
         shell("velvet-pe {prefix} {k} {file1} {file2} {wildcards.dataset} {params.insertsize} 1> {stdout} 2> {stderr}")  
-        velvet_out=config["OUTBASE"]+"{0}/{1}/velvet.fasta".format(wildcards.dataset, wildcards.tool)
-        shell("mv {0} {1}".format(prefix+"/contigs.fa", velvet_out))
+        #velvet_out=config["OUTBASE"]+"{0}/{1}/velvet.fasta".format(wildcards.dataset, wildcards.tool)
+        shell("mv {0} {1}".format(prefix+"/contigs.fa", output.contigs))
         shell("rm -r {prefix}")
 
 rule QUAST:
