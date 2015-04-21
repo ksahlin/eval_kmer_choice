@@ -573,13 +573,14 @@ rule abyss:
         file1 = list(shell("head -n 1 {input.reads}", iterable=True))[0]
         file2 = list(shell("head -n 2 {input.reads}", iterable=True))[1]
         shell("abyss-pe {prefix} {k} {file1} {file2} --always-make 2>&1 | tee -a {stderr}")  
-        #shell("mv {0} {1}".format(prefix+"-contigs.fa", prefix+'.fasta'))
         # Apperently, abyss-contigs.fa is a symlink to abyss-6.fa, so we 
         # mv abyss-6.fa file instead
         shell("mv {0} {1}".format(prefix+"-6.fa", prefix+'.fasta'))
         # we update the timestamp on the output of rule abyss so the snakemake does not return
         # "Output files ... are older than input files.". Unsure why this happens.
         shell("touch {0} ".format(prefix+'.fasta'))
+        abyss_output= prefix+'-'
+        shell("rm {abyss_output}")
 
 rule velvet:
     input:  reads=config["INBASE"]+"{dataset}.cfg", 
@@ -593,22 +594,21 @@ rule velvet:
         jobname="{dataset}_{tool}_"+"_abyss",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
-        mail_type=config["SBATCH"]["MAIL_TYPE"]
+        mail_type=config["SBATCH"]["MAIL_TYPE"],
+        insertsize= lambda wildcards: config["inserts"][wildcards.dataset]
     run:
         time = config["GNUTIME"]
-        prefix=config["OUTBASE"]+"{0}/{1}/velvet".format(wildcards.dataset, wildcards.tool)
-
+        prefix=config["OUTBASE"]+"{0}/{1}/velvet_tmp".format(wildcards.dataset, wildcards.tool)
+        file1 = list(shell("head -n 1 {input.reads}", iterable=True))[0]
+        file2 = list(shell("head -n 2 {input.reads}", iterable=True))[1]
         k,a = get_k_and_a_for_assembler(input.params)
+
         stdout=config["OUTBASE"]+"{0}/{1}/velvet.stdout".format(wildcards.dataset, wildcards.tool)
         stderr=config["OUTBASE"]+"{0}/{1}/velvet.stderr".format(wildcards.dataset, wildcards.tool) 
-        file1=shell("$(head -n 1 /home/kris/Work/optimal_k/config/staph.cfg)")
-        interleaved_pe = os.path.join('/'.join(file1.split('/')[:-1]), "frag_merged.fastq.gz")
-        #file2=shell("$(head -n 2 /home/kris/Work/optimal_k/config/staph.cfg)")
-        #shell( "interleave-fastq  /proj/b2013169/private/data/genomes/staph/fastq/PE/frag_1.fastq.gz /proj/b2013169/private/data/genomes/staph/fastq/PE/frag_2.fastq.gz >  /proj/b2013169/private/data/genomes/staph/fastq/PE/frag_merged.fastq.gz")
-        #gzip | 
-        shell("velveth name={prefix} k={k} in='{file1} {file2}' 1> {stdout} 2> {stderr}")  
-        shell("velvetg name={prefix} k={k} in='{file1} {file2}' 1> {stdout} 2> {stderr}")  
-        shell("mv {0} {1}".format(prefix+"-contigs.fa", prefix+'.fasta'))
+        shell("velvet-pe {prefix} {k} {file1} {file2} {dataset} {params.insertsize} 1> {stdout} 2> {stderr}")  
+        velvet_out=config["OUTBASE"]+"{0}/{1}/velvet.fasta".format(wildcards.dataset, wildcards.tool)
+        shell("mv {0} {1}".format(prefix+"/contigs.fa", velvet_out))
+        shell("rm -r {prefix}")
 
 rule QUAST:
     input: contigs=config["OUTBASE"]+"{dataset}/{tool}/{assembler}.fasta",
