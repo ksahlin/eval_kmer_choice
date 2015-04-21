@@ -605,7 +605,7 @@ rule velvet:
 
         stdout=config["OUTBASE"]+"{0}/{1}/velvet.stdout".format(wildcards.dataset, wildcards.tool)
         stderr=config["OUTBASE"]+"{0}/{1}/velvet.stderr".format(wildcards.dataset, wildcards.tool) 
-        shell("velvet-pe {prefix} {k} {file1} {file2} {dataset} {params.insertsize} 1> {stdout} 2> {stderr}")  
+        shell("velvet-pe {prefix} {k} {file1} {file2} {wildcards.dataset} {params.insertsize} 1> {stdout} 2> {stderr}")  
         velvet_out=config["OUTBASE"]+"{0}/{1}/velvet.fasta".format(wildcards.dataset, wildcards.tool)
         shell("mv {0} {1}".format(prefix+"/contigs.fa", velvet_out))
         shell("rm -r {prefix}")
