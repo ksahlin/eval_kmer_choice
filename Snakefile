@@ -457,6 +457,44 @@ rule kmergenie:
         shell("echo {0} {1} > {{output.best_params}} ".format(k,a))
 
 
+rule preqc:
+    input: reads=config["INBASE"]+"{dataset}.cfg"
+    output: csv=config["OUTBASE"]+"{dataset}/preqc/default.dat",
+            stderr=config["OUTBASE"]+"{dataset}/preqc/default.stderr", 
+            stdout=config["OUTBASE"]+"{dataset}/preqc/default.stdout",
+            best_params=config["OUTBASE"]+"{dataset}/preqc/best_params.txt"
+    params: 
+        runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["abyss_time"],
+        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
+        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
+        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
+        jobname="{dataset}_{tool}_"+"preQC",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
+    run:
+        time = config["GNUTIME"]
+        prefix=config["OUTBASE"]+"{0}/{1}/preqc".format(wildcards.dataset, wildcards.tool)
+        stderr=config["OUTBASE"]+"{0}/{1}/abyss.stderr".format(wildcards.dataset, wildcards.tool) 
+        file1 = list(shell("head -n 1 {input.reads}", iterable=True))[0]
+        file2 = list(shell("head -n 2 {input.reads}", iterable=True))[1]
+
+    sga preprocess --pe-mode 1 reads_R1.fastq reads_R2.fastq > mygenome.fastq
+    sga preprocess --pe-mode 1 /proj/b2013169/private/data/gage.cbcb.umd.edu/data/Staphylococcus_aureus/Data.original/frag_1.fastq.gz /proj/b2013169/private/data/gage.cbcb.umd.edu/data/Staphylococcus_aureus/Data.original/frag_2.fastq.gz > /proj/b2013169/nobackup/sga_staph_genome.fastq
+    
+    sga index -a ropebwt --no-reverse -t 8 mygenome.fastq
+    sga index -a ropebwt --no-reverse -t 8 --prefix=/proj/b2013169/nobackup/sga_staph_genome /proj/b2013169/nobackup/sga_staph_genome.fastq
+    
+    sga preqc -t 8 mygenome.fastq > mygenome.preqc
+    sga preqc -t 8 /proj/b2013169/nobackup/sga_staph_genome.fastq > /proj/b2013169/nobackup/sga_staph_genome.preqc
+
+    sga-preqc-report.py mygenome.preqc sga/src/examples/*.preqc
+
+        shell("touch {0} ".format(prefix+'.fasta'))
+        abyss_output= prefix+'-*'
+        shell("rm {abyss_output}")
+    run:
+
 
 
 rule unitiger:
