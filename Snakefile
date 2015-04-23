@@ -476,7 +476,7 @@ rule preqc:
         stderr=config["OUTBASE"]+"{0}/preqc/sga_pipeline.stderr".format(wildcards.dataset) 
         file1 = list(shell("head -n 1 {input.reads}", iterable=True))[0]
         file2 = list(shell("head -n 2 {input.reads}", iterable=True))[1]
-        tmp_prefix = "/tmp/{0}/{1}/preqc_genome".format(wildcards.dataset, wildcards.tool) 
+        tmp_prefix = "/tmp/{0}/preqc/preqc_genome".format(wildcards.dataset) 
         
         shell("{time} SGA_optk_pipeline {tmp_prefix} {file1} {file2} 2> {stderr}")
         shell("cp {stderr} {output.stderr}")
