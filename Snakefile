@@ -481,7 +481,7 @@ rule preqc:
         
         shell("{time} SGA_optk_pipeline {tmp_prefix} {file1} {file2} 2> {stderr}")
         shell("cp {stderr} {output.stderr}")
-        best_k = list(shell("SGA_wrapper get_k {tmp_prefix}.preqc"),iterable=True)[0]
+        best_k = list(shell("SGA_wrapper get_k {tmp_prefix}.preqc",iterable=True))[0]
         shell("echo {0} {1} > {{output.best_params}} ".format(best_k,3))
 
 
