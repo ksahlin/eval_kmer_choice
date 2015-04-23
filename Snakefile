@@ -459,8 +459,7 @@ rule kmergenie:
 
 rule preqc:
     input: reads=config["INBASE"]+"{dataset}.cfg"
-    output: csv=config["OUTBASE"]+"{dataset}/preqc/default.dat",
-            stderr=config["OUTBASE"]+"{dataset}/preqc/preqc.stderr", 
+    output: stderr=config["OUTBASE"]+"{dataset}/preqc/preqc.stderr", 
             best_params=config["OUTBASE"]+"{dataset}/preqc/best_params.txt"
     params: 
         runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["preqc_time"],
@@ -474,7 +473,7 @@ rule preqc:
     run:
         pass
         time = config["GNUTIME"]
-        stderr=config["OUTBASE"]+"{0}/{1}/sga_pipeline.stderr".format(wildcards.dataset, wildcards.tool) 
+        stderr=config["OUTBASE"]+"{0}/preqc/sga_pipeline.stderr".format(wildcards.dataset) 
         file1 = list(shell("head -n 1 {input.reads}", iterable=True))[0]
         file2 = list(shell("head -n 2 {input.reads}", iterable=True))[1]
         tmp_prefix = "/tmp/{0}/{1}/preqc_genome".format(wildcards.dataset, wildcards.tool) 
