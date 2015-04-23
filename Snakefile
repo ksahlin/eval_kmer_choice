@@ -460,11 +460,10 @@ rule kmergenie:
 rule preqc:
     input: reads=config["INBASE"]+"{dataset}.cfg"
     output: csv=config["OUTBASE"]+"{dataset}/preqc/default.dat",
-            stderr=config["OUTBASE"]+"{dataset}/preqc/default.stderr", 
-            stdout=config["OUTBASE"]+"{dataset}/preqc/default.stdout",
+            stderr=config["OUTBASE"]+"{dataset}/preqc/preqc.stderr", 
             best_params=config["OUTBASE"]+"{dataset}/preqc/best_params.txt"
     params: 
-        runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["abyss_time"],
+        runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["preqc_time"],
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
         partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
         n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
@@ -475,25 +474,29 @@ rule preqc:
     run:
         time = config["GNUTIME"]
         prefix=config["OUTBASE"]+"{0}/{1}/preqc".format(wildcards.dataset, wildcards.tool)
-        stderr=config["OUTBASE"]+"{0}/{1}/abyss.stderr".format(wildcards.dataset, wildcards.tool) 
+        stderr=config["OUTBASE"]+"{0}/{1}/sga_pipeline.stderr".format(wildcards.dataset, wildcards.tool) 
         file1 = list(shell("head -n 1 {input.reads}", iterable=True))[0]
         file2 = list(shell("head -n 2 {input.reads}", iterable=True))[1]
+        tmp_prefix = "/tmp/{0}/{1}/preqc_genome".format(wildcards.dataset, wildcards.tool) 
+        
+        shell("{time} SGA_optk_pipeline {tmp_prefix} {file1} {file2} 2> {stderr}")
+        shell("cp {stderr} {output.stderr}")
+        #sga preprocess --pe-mode 1 reads_R1.fastq reads_R2.fastq > mygenome.fastq
+        #shell("SGA_wrapper preprocess --pe-mode 1 {file1} {file2} > {tmp_prefix}.fastq ")
+        #sga preprocess --pe-mode 1 /proj/b2013169/private/data/gage.cbcb.umd.edu/data/Staphylococcus_aureus/Data.original/frag_1.fastq.gz /proj/b2013169/private/data/gage.cbcb.umd.edu/data/Staphylococcus_aureus/Data.original/frag_2.fastq.gz > /proj/b2013169/nobackup/sga_staph_genome.fastq
 
-    sga preprocess --pe-mode 1 reads_R1.fastq reads_R2.fastq > mygenome.fastq
-    sga preprocess --pe-mode 1 /proj/b2013169/private/data/gage.cbcb.umd.edu/data/Staphylococcus_aureus/Data.original/frag_1.fastq.gz /proj/b2013169/private/data/gage.cbcb.umd.edu/data/Staphylococcus_aureus/Data.original/frag_2.fastq.gz > /proj/b2013169/nobackup/sga_staph_genome.fastq
-    
-    sga index -a ropebwt --no-reverse -t 8 mygenome.fastq
-    sga index -a ropebwt --no-reverse -t 8 --prefix=/proj/b2013169/nobackup/sga_staph_genome /proj/b2013169/nobackup/sga_staph_genome.fastq
-    
-    sga preqc -t 8 mygenome.fastq > mygenome.preqc
-    sga preqc -t 8 /proj/b2013169/nobackup/sga_staph_genome.fastq > /proj/b2013169/nobackup/sga_staph_genome.preqc
+        #sga index -a ropebwt --no-reverse -t 8 mygenome.fastq
+        #sga index -a ropebwt --no-reverse -t 8 --prefix=/proj/b2013169/nobackup/sga_staph_genome /proj/b2013169/nobackup/sga_staph_genome.fastq
+        #shell("SGA_wrapper index -a ropebwt --no-reverse -t 8 --prefix={tmp_prefix} {tmp_prefix}.fastq")
 
-    sga-preqc-report.py mygenome.preqc sga/src/examples/*.preqc
+        #sga preqc -t 8 --force-EM mygenome.fastq > mygenome.preqc
+        #sga preqc -t 8 /proj/b2013169/nobackup/sga_staph_genome.fastq > /proj/b2013169/nobackup/sga_staph_genome.preqc
+        #shell("SGA_wrapper preqc -t 8 --force-EM {tmp_prefix}.fastq > {tmp_prefix}.preqc")
 
-        shell("touch {0} ".format(prefix+'.fasta'))
-        abyss_output= prefix+'-*'
-        shell("rm {abyss_output}")
-    run:
+        #sga-preqc-report.py mygenome.preqc sga/src/examples/*.preqc
+        #SGA_wrapper get_k /proj/b2013169/nobackup/sga_staph_genome.preqc
+        best_k = list(shell("SGA_wrapper get_k {tmp_prefix}.preqc"),iterable=True))[0]
+        shell("echo {0} {1} > {{output.best_params}} ".format(best_k,3))
 
 
 
