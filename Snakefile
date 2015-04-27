@@ -543,7 +543,7 @@ rule minia:
         k,a = get_k_and_a_for_assembler(input.params)
         # stdout=config["OUTBASE"]+"{0}/{1}/minia.stdout".format(wildcards.dataset, wildcards.tool)
         stderr=config["OUTBASE"]+"{0}/{1}/minia.stderr".format(wildcards.dataset, wildcards.tool) 
-        shell("{time} minia -in {input.reads} -kmer-size {k} -abundance-min {a} -no-length-cutoff -out {prefix} 2>&1 | tee -a {stderr}")   
+        shell("{time} minia -in {input.reads} -kmer-size {k} -abundance-min 3 -no-length-cutoff -out {prefix} 2>&1 | tee -a {stderr}")   
         shell("mv {0} {1}".format(prefix+".contigs.fa", prefix+'.fasta'))
         ###########
         # for testing on mac:
@@ -635,13 +635,14 @@ rule velvet:
         shell("velvet-pe {prefix} {k} {file1} {file2} {wildcards.dataset} {params.insertsize} 1> {stdout} 2> {stderr}")  
         #velvet_out=config["OUTBASE"]+"{0}/{1}/velvet.fasta".format(wildcards.dataset, wildcards.tool)
         shell("mv {0} {1}".format(prefix+"/contigs.fa", output.contigs))
-        shell("rm -r {prefix}")
+        #shell("rm -r {prefix}")
 
 rule QUAST:
     input: contigs=config["OUTBASE"]+"{dataset}/{tool}/{assembler}.fasta",
              param=config["OUTBASE"]+"{dataset}/{tool}/best_params.txt"
     output: #results=config["OUTBASE"]+"{dataset}/{tool}/QUAST/report.txt",
             nice_format=config["OUTBASE"]+"{dataset}/{tool}/result_metrics_{assembler}.csv"
+    log: config["OUTBASE"]+"{dataset}/{tool}/{assembler}/quast.output"
     params: 
         runtime=lambda wildcards: config["SBATCH"][wildcards.dataset]["quast_time"],
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_memsize"],
@@ -661,12 +662,12 @@ rule QUAST:
         outpath="{0}/{1}/{2}/{3}/QUAST/".format(out, wildcards.dataset,wildcards.tool, wildcards.assembler)
         reference = config["REFERENCES"][wildcards.dataset]
         if wildcards.dataset == "spruce":
-            shell(" {python} {path}quast.py -o {outpath} --min-contig 200 --no-plots {input.contigs}") 
+            shell(" {python} {path}quast.py -o {outpath} --min-contig 200 --no-plots {input.contigs} &> {log}")
         elif wildcards.dataset == "hs14":
-            shell(" {python} {path}quast.py -o {outpath} --min-contig 100 --no-plots {input.contigs}") 
+            shell(" {python} {path}quast.py -o {outpath} --min-contig 200 --no-plots {input.contigs} &> {log} ") 
 
         else:
-            shell(" {python} {path}quast.py -R  {reference} -o {outpath} --min-contig 30 --no-plots {input.contigs} ") 
+            shell(" {python} {path}quast.py -R  {reference} -o {outpath} --min-contig 30 --no-plots {input.contigs} &> {log} ") 
 
         misassm, N50, NA50, tot_length = parse_quast(outpath+"report.txt")
         e_size = get_esize(input.contigs)
