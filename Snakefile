@@ -151,6 +151,7 @@ OPTIMAL_K_CSV =  """k,a,nr_nodes,nr_edges,avg_internal_nodes,avg_length_unitigs,
 
 import re
 import os
+import os.path
 def get_kmer_genie_params(csv_file_path):
     max_genomic_kmers = 0
     best_k = 0
@@ -201,6 +202,9 @@ def get_esize(fastafile):
 
 def parse_quast(quast_report):
     lines = open(quast_report, 'r').readlines()
+    ESIZE_GENOME = '-'
+    CORR_ESIZE_GENOME  = '-'
+
     has_ref = False
     for line in lines:
         if re.match(r"Total length \(\>\= 0 bp\)",line):
@@ -217,9 +221,16 @@ def parse_quast(quast_report):
         if re.match(r"# local misassemblies",line):
             local_misassm = int(line.strip().split()[3]) 
             has_ref = True
+        
         # for spruce
         if re.match(r"N50",line):
             N50 = int(line.strip().split()[1])
+
+        if re.match(r"ESIZE_GENOME",line):
+            ESIZE_GENOME = float(line.strip().split()[2]) 
+        if re.match(r"CORR_ESIZE_GENOME",line):
+            CORR_ESIZE_GENOME = float(line.strip().split()[2]) 
+
 
     if has_ref:
         misassm = large_misassm + local_misassm
@@ -231,9 +242,9 @@ def parse_quast(quast_report):
             NG50
         except UnboundLocalError:
             NG50 = "."
-        return(misassm, NG50, NGA50, genome_size)
+        return(misassm, NG50, NGA50, genome_size, ESIZE_GENOME, CORR_ESIZE_GENOME)
     else:
-        return('.', N50, '.', genome_size)
+        return('.', N50, '.', genome_size, '-', '-')
 
 def  parse_gnu_time(stderr_file):
     lines = open(stderr_file, 'r').readlines()
@@ -661,18 +672,24 @@ rule QUAST:
         min_contig =  config["quast_rules"]["min_contig"]
         outpath="{0}/{1}/{2}/{3}/QUAST/".format(out, wildcards.dataset,wildcards.tool, wildcards.assembler)
         reference = config["REFERENCES"][wildcards.dataset]
+        fail_flag = "/tmp/{0}_{1}_{2}_quastfail.err".format( wildcards.dataset,wildcards.tool, wildcards.assembler)
         if wildcards.dataset == "spruce":
-            shell(" {python} {path}quast.py -o {outpath} --min-contig 200 --no-plots {input.contigs} &> {log}")
+            shell("if {python} {path}quast.py -o {outpath} --min-contig 200 --no-plots {input.contigs} &> {log}; then : nothing; else touch {fail_flag} ")
         elif wildcards.dataset == "hs14":
-            shell(" {python} {path}quast.py -o {outpath} --min-contig 200 --no-plots {input.contigs} &> {log} ") 
+            shell(" {python} {path}quast.py -o {outpath} --min-contig 100 --no-plots {input.contigs} &> {log} ") 
 
         else:
             shell(" {python} {path}quast.py -R  {reference} -o {outpath} --min-contig 30 --no-plots {input.contigs} &> {log} ") 
 
-        misassm, N50, NA50, tot_length = parse_quast(outpath+"report.txt")
-        e_size = get_esize(input.contigs)
-        k,a = get_k_and_a_for_assembler(input.param)
-        print("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}".format(wildcards.dataset, wildcards.tool, k, a, e_size, tot_length, N50, misassm,  NA50), file=open(output.nice_format, 'w'))    
+        if os.path.isfile(fail_flag):
+            os.remove(fail_flag)
+            k,a = get_k_and_a_for_assembler(input.param)
+            print("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}".format(wildcards.dataset, wildcards.tool, k, a, '-', '-', '-', '-', '-', '-'), file=open(output.nice_format, 'w'))    
+
+        else:
+            misassm, N50, NA50, tot_length, ESIZE_GENOME, CORR_ESIZE_GENOME = parse_quast(outpath+"report.txt")
+            k,a = get_k_and_a_for_assembler(input.param)
+            print("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}".format(wildcards.dataset, wildcards.tool, k, a, ESIZE_GENOME, CORR_ESIZE_GENOME, tot_length, N50, misassm,  NA50), file=open(output.nice_format, 'w'))    
 
 
 
