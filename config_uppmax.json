@@ -120,6 +120,7 @@
     "DATASETS" : ["staph", "rhodo", "plasm", "hs14"],
     "TOOLS" :["optimal_k", "kmergenie", "preqc"],
     "METHODS" : ["sampling", "index", "default", "preqc"],
+    "SAMPLING_TYPE" : ["unitigs", "contigs"],
     "ASSEMBLERS" : ["unitiger", "minia", "minia_utg", "abyss", "velvet"],
 	"LOAD_PYTHON_ENV" : "pyenv global system 3.4.1 2.7.6",
   	"INBASE" : "/home/kris/Work/optimal_k/config/", 

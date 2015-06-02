@@ -183,22 +183,22 @@ def get_k_and_a_for_assembler(csv_file_path):
     k, a = map(lambda x: int(x), line.strip().split())
     return k, a
 
-def get_esize(fastafile):
-    ctgs = []
-    contig = ''
-    for line in open(fastafile, 'r'):
-        if line[0] == '>':
-            if contig:
-                ctgs.append(contig)
-            contig = ''
-        else:
-            contig += line.strip()
-    ctgs.append(contig)
-    lengths = map(lambda x: len(x), ctgs)
-    square_lengths = map(lambda x: len(x)**2, ctgs)
-    e_size = sum(square_lengths) / float(sum(lengths))
+# def get_esize(fastafile):
+#     ctgs = []
+#     contig = ''
+#     for line in open(fastafile, 'r'):
+#         if line[0] == '>':
+#             if contig:
+#                 ctgs.append(contig)
+#             contig = ''
+#         else:
+#             contig += line.strip()
+#     ctgs.append(contig)
+#     lengths = map(lambda x: len(x), ctgs)
+#     square_lengths = map(lambda x: len(x)**2, ctgs)
+#     e_size = sum(square_lengths) / float(sum(lengths))
 
-    return(e_size)
+#     return(e_size)
 
 def parse_quast(quast_report):
     lines = open(quast_report, 'r').readlines()
@@ -276,12 +276,55 @@ def myfunc(wildcards):
     for dataset in config["DATASETS"]:
         input_list_to_performace_latex_table.append(config["OUTBASE"]+"{0}/kmergenie/default_time_and_mem.txt".format(dataset) )
         input_list_to_performace_latex_table.append(config["OUTBASE"]+"{0}/optimal_k/index_time_and_mem.txt".format(dataset) )
-        input_list_to_performace_latex_table.append(config["OUTBASE"]+"{0}/optimal_k/sampling_time_and_mem.txt".format(dataset) )
+        input_list_to_performace_latex_table.append(config["OUTBASE"]+"{0}/optimal_k/sampling_contigs_time_and_mem.txt".format(dataset) )
+        input_list_to_performace_latex_table.append(config["OUTBASE"]+"{0}/optimal_k/sampling_unitigs_time_and_mem.txt".format(dataset) )
+        input_list_to_performace_latex_table.append(config["OUTBASE"]+"{0}/preqc/preqc_time_and_mem.txt".format(dataset) )
     return input_list_to_performace_latex_table
 
+def assembly_input(wildcards):
+  input_= []
+
+  for dataset in config["DATASETS"]:
+    for tool in config["TOOLS"]:
+      for assembler in config["ASSEMBLERS"]:
+        if tool == 'preqc' and assembler == 'minia_utg':
+            continue
+
+        input_.append(config["OUTBASE"]+"{0}/{1}/{2}.fasta".format(dataset, tool, assembler) )
+
+  return input_
+
+def prediction_input(wildcards):
+  input_= []
+
+  for dataset in config["DATASETS"]:
+    for tool in config["TOOLS"]:
+      if tool = 'optimal_k':
+        input_.append(config["OUTBASE"]+"{0}/{1}/best_params_unitigs.txt".format(dataset, tool))
+        input_.append(config["OUTBASE"]+"{0}/{1}/best_params_contigs.txt".format(dataset, tool))
+      else:
+        input_.append(config["OUTBASE"]+"{0}/{1}/best_params_default.txt".format(dataset, tool) )
+
+  return input_
+
+def evaluation_input(wildcards):
+  input_= []
+
+  for dataset in config["DATASETS"]:
+    for tool in config["TOOLS"]:
+      for assembler in config["ASSEMBLERS"]:
+        if tool == 'preqc' and assembler == 'minia_utg':
+            continue
+
+        input_.append(config["OUTBASE"]+"{0}/{1}/result_metrics_{2}.csv".format(dataset, tool, assembler) )
+
+  return input_
+
 ###########################################################
 ###########################################################
 
+
+# sub build targets
 rule all:
     input:
         config["OUTBASE"]+"performance_table.tex",        
@@ -309,7 +352,41 @@ rule sampling:
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
 
+rule predict:
+    input: prediction_input
+    params: 
+        runtime="15:00",
+        memsize = "mem128GB",
+        partition = "core",
+        n = "1",
+        jobname="all",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
 
+rule assemble:
+    input: assembly_input
+    params: 
+        runtime="15:00",
+        memsize = "mem128GB",
+        partition = "core",
+        n = "1",
+        jobname="all",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
+
+rule evaluate:
+    input: evaluation_input
+    params: 
+        runtime="15:00",
+        memsize = "mem128GB",
+        partition = "core",
+        n = "1",
+        jobname="all",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
 
 rule optimal_k_index:
     input: reads=config["INBASE"]+"{dataset}.cfg"
@@ -343,11 +420,11 @@ rule optimal_k_index:
         # print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
         ###########
 
-rule optimal_k_sampling:
+rule optimal_k_sampling_contigs:
     input: reads=config["INBASE"]+"{dataset}.cfg", index=config["OUTBASE"]+"{dataset}/optimal_k/index.rlcsa.array"
-    output: stderr=config["OUTBASE"]+"{dataset}/optimal_k/sampling.stderr", 
-            stdout=config["OUTBASE"]+"{dataset}/optimal_k/sampling.stdout",
-            complete=config["OUTBASE"]+"{dataset}/optimal_k/sampling_ok.txt",
+    output: stderr=config["OUTBASE"]+"{dataset}/optimal_k/sampling_contigs.stderr", 
+            stdout=config["OUTBASE"]+"{dataset}/optimal_k/sampling_contigs.stdout",
+            complete=config["OUTBASE"]+"{dataset}/optimal_k/sampling_contigs_ok.txt",
             #best_params=config["OUTBASE"]+"{dataset}/optimal_k/best_params.txt"
     version: OPTIMAL_K_VERSION
     params: 
@@ -355,13 +432,13 @@ rule optimal_k_sampling:
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
         partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
         n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
-        jobname="{dataset}"+"_optimalk_sampling",
+        jobname="{dataset}"+"_optimalk_sampling_contigs",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
         time=config["GNUTIME"]
-        prefix=config["OUTBASE"]+"{0}/optimal_k/sampling".format(wildcards.dataset)
+        prefix=config["OUTBASE"]+"{0}/optimal_k/sampling_contigs".format(wildcards.dataset)
         min_a = config["optimal_k_rules"]["min_abundance"]
         max_a = config["optimal_k_rules"]["max_abundance"]
         index_path=config["OUTBASE"]+"{0}/optimal_k/index".format(wildcards.dataset)
@@ -369,40 +446,35 @@ rule optimal_k_sampling:
         shell(" {time} optimal-k -r {input.reads}  --loadindex {index_path} -a {min_a} -A {max_a} -o {prefix} -s 100000 1> {output.stdout} 2> {output.stderr}")
         shell("touch {output.complete}")
 
-        # ###########
-        # # for testing on mac:
-        # print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a1.csv', 'w') ) 
-        # print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a2.csv', 'w') ) 
-        # print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a3.csv', 'w') ) 
-        # print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a4.csv', 'w') ) 
-        # print("{0}".format(OPTIMAL_K_CSV), file=open(prefix+'.a5.csv', 'w') ) 
-        # print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
-        # ###########
+rule optimal_k_sampling_unitigs:
+    input: reads=config["INBASE"]+"{dataset}.cfg", index=config["OUTBASE"]+"{dataset}/optimal_k/index.rlcsa.array"
+    output: stderr=config["OUTBASE"]+"{dataset}/optimal_k/sampling_unitigs.stderr", 
+            stdout=config["OUTBASE"]+"{dataset}/optimal_k/sampling_unitigs.stdout",
+            complete=config["OUTBASE"]+"{dataset}/optimal_k/sampling_unitigs_ok.txt",
+            #best_params=config["OUTBASE"]+"{dataset}/optimal_k/best_params.txt"
+    version: OPTIMAL_K_VERSION
+    params: 
+        runtime= lambda wildcards: config["SBATCH"][wildcards.dataset]["optimalk_sample_time"],
+        memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
+        partition = lambda wildcards: config["SBATCH"][wildcards.dataset]["partition"],
+        n = lambda wildcards: config["SBATCH"][wildcards.dataset]["n"],
+        jobname="{dataset}"+"_optimalk_sampling_unitigs",
+        account=config["SBATCH"]["ACCOUNT"],
+        mail=config["SBATCH"]["MAIL"],
+        mail_type=config["SBATCH"]["MAIL_TYPE"]
+    run:
+        time=config["GNUTIME"]
+        prefix=config["OUTBASE"]+"{0}/optimal_k/sampling_unitigs".format(wildcards.dataset)
+        min_a = config["optimal_k_rules"]["min_abundance"]
+        max_a = config["optimal_k_rules"]["max_abundance"]
+        index_path=config["OUTBASE"]+"{0}/optimal_k/index".format(wildcards.dataset)
 
-        # max_objective = 0
-        # best_k = 0
-        # best_a = 0
-        # find_k = config["optimal_k_rules"]["script_path"]+"fit_curve.py"
-        # python = config["PYTHON2"]
-        # for abundance in range(int(min_a),int(max_a)+1):
-        #     csv_file = prefix+".a{0}.csv".format(abundance)
-        #     #k, objective = get_optimal_k_params(csv_file)
-        #     k, objective = list(shell("{python} {find_k} {csv_file}", iterable=True))[0].split()
-        #     k = int(float(k))
-        #     objective = float(objective)
-
-        #     if objective > max_objective:
-        #         best_k = k
-        #         best_a = abundance
-        #         max_objective = objective
-
-        # shell("echo {0} {1} > {{output.best_params}} ".format(best_k,best_a))
-
-
+        shell(" {time} optimal-k -r {input.reads}  --loadindex {index_path} -a 1 -A 15 -o {prefix} -s 100000 1> {output.stdout} 2> {output.stderr}")
+        shell("touch {output.complete}")
 
 rule get_best_params:
-    input: config["OUTBASE"]+"{dataset}/optimal_k/sampling_ok.txt"
-    output: best_params=config["OUTBASE"]+"{dataset}/optimal_k/best_params.txt"
+    input: config["OUTBASE"]+"{dataset}/optimal_k/sampling_{type}_ok.txt"
+    output: best_params= expand(config["OUTBASE"]+"{dataset}/optimal_k/best_params_{type}.txt",  dataset=config["DATASETS"], type=config["SAMPLING_TYPE"])  #config["OUTBASE"]+"{dataset}/optimal_k/best_params.txt"
     params: 
         runtime="10:00",
         memsize = "'mem128GB|mem256GB|mem512GB'",
@@ -440,7 +512,7 @@ rule kmergenie:
     output: csv=config["OUTBASE"]+"{dataset}/kmergenie/default.dat",
             stderr=config["OUTBASE"]+"{dataset}/kmergenie/default.stderr", 
             stdout=config["OUTBASE"]+"{dataset}/kmergenie/default.stdout",
-            best_params=config["OUTBASE"]+"{dataset}/kmergenie/best_params.txt"
+            best_params=config["OUTBASE"]+"{dataset}/kmergenie/best_params_default.txt"
     version: KMERGENIE_VERSION
 
     params: 
@@ -471,7 +543,7 @@ rule kmergenie:
 rule preqc:
     input: reads=config["INBASE"]+"{dataset}.cfg"
     output: stderr=config["OUTBASE"]+"{dataset}/preqc/preqc.stderr", 
-            best_params=config["OUTBASE"]+"{dataset}/preqc/best_params.txt"
+            best_params=config["OUTBASE"]+"{dataset}/preqc/best_params_default.txt"
     params: 
         runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["preqc_time"],
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
@@ -499,7 +571,7 @@ rule preqc:
 
 rule unitiger:
     input:  reads=config["INBASE"]+"{dataset}.cfg", 
-            params=config["OUTBASE"]+"{dataset}/{tool}/best_params.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
+            params=config["OUTBASE"]+"{dataset}/{tool}/best_params_{type}.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
     output: unitigs=config["OUTBASE"]+"{dataset}/{tool}/unitiger.fasta"
     params: 
         runtime=lambda wildcards: config["SBATCH"][wildcards.dataset]["unitiger_time"],
@@ -537,7 +609,7 @@ rule unitiger:
 
 rule minia:
     input:  reads=config["INBASE"]+"{dataset}.cfg", 
-            params=config["OUTBASE"]+"{dataset}/{tool}/best_params.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
+            params=config["OUTBASE"]+"{dataset}/{tool}/best_params_{type}.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
     output: contigs=config["OUTBASE"]+"{dataset}/{tool}/minia.fasta"
     params: 
         runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["minia_time"],
@@ -569,7 +641,7 @@ rule minia:
 
 rule minia_utg:
     input:  reads=config["INBASE"]+"{dataset}.cfg", 
-            params=config["OUTBASE"]+"{dataset}/{tool}/best_params.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
+            params=config["OUTBASE"]+"{dataset}/{tool}/best_params_{type}.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
     output: contigs=config["OUTBASE"]+"{dataset}/{tool}/minia_utg.fasta"
     params: 
         runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["minia_time"],
@@ -591,7 +663,7 @@ rule minia_utg:
 
 rule abyss:
     input:  reads=config["INBASE"]+"{dataset}.cfg", 
-            params=config["OUTBASE"]+"{dataset}/{tool}/best_params.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
+            params=config["OUTBASE"]+"{dataset}/{tool}/best_params_{type}.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
     output: contigs=config["OUTBASE"]+"{dataset}/{tool}/abyss.fasta"
     params: 
         runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["abyss_time"],
@@ -622,7 +694,7 @@ rule abyss:
 
 rule velvet:
     input:  reads=config["INBASE"]+"{dataset}.cfg", 
-            params=config["OUTBASE"]+"{dataset}/{tool}/best_params.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
+            params=config["OUTBASE"]+"{dataset}/{tool}/best_params_{type}.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
     output: contigs=config["OUTBASE"]+"{dataset}/{tool}/velvet.fasta"
     params: 
         runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["velvet_time"],
@@ -650,9 +722,9 @@ rule velvet:
 
 rule QUAST:
     input: contigs=config["OUTBASE"]+"{dataset}/{tool}/{assembler}.fasta",
-             param=config["OUTBASE"]+"{dataset}/{tool}/best_params.txt"
+            param=config["OUTBASE"]+"{dataset}/{tool}/best_params_{type}.txt"
     output: #results=config["OUTBASE"]+"{dataset}/{tool}/QUAST/report.txt",
-            nice_format=config["OUTBASE"]+"{dataset}/{tool}/result_metrics_{assembler}.csv"
+            nice_format=config["OUTBASE"]+"{dataset}/{tool}/result_metrics_{assembler}_{type}.csv"
     log: config["OUTBASE"]+"{dataset}/{tool}/{assembler}/quast.output"
     params: 
         runtime=lambda wildcards: config["SBATCH"][wildcards.dataset]["quast_time"],
@@ -694,8 +766,8 @@ rule QUAST:
 
 
 rule time_and_mem:
-    input:  stderr=config["OUTBASE"]+"{dataset}/{tool}/{method}.stderr" #rules.optimal_k_index.output.stderr, rules.optimal_k_sampling.output.stderr,rules.kmergenie.output.stderr #,
-    output: outfile=config["OUTBASE"]+"{dataset}/{tool}/{method}_time_and_mem.txt"
+    input:  stderr=config["OUTBASE"]+"{dataset}/{tool}/{method}_{type}.stderr" #rules.optimal_k_index.output.stderr, rules.optimal_k_sampling.output.stderr,rules.kmergenie.output.stderr #,
+    output: outfile=config["OUTBASE"]+"{dataset}/{tool}/{method}_{type}_time_and_mem.txt"
     params: 
         runtime="15:00",
         memsize = "'mem128GB|mem256GB|mem512GB'",
