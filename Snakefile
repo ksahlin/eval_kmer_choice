@@ -281,7 +281,7 @@ def myfunc(wildcards):
         input_list_to_performace_latex_table.append(config["OUTBASE"]+"{0}/preqc/preqc_time_and_mem.txt".format(dataset) )
     return input_list_to_performace_latex_table
 
-def assembly_input(wildcards):
+def assembly_targets(wildcards):
   input_= []
 
   for dataset in config["DATASETS"]:
@@ -289,17 +289,25 @@ def assembly_input(wildcards):
       for assembler in config["ASSEMBLERS"]:
         if tool == 'preqc' and assembler == 'minia_utg':
             continue
-
-        input_.append(config["OUTBASE"]+"{0}/{1}/{2}.fasta".format(dataset, tool, assembler) )
+        elif tool == 'optimal_k' and assembler == 'minia_utg':
+          input_.append(config["OUTBASE"]+"{0}/{1}/unitigs_{2}.fasta".format(dataset, tool, assembler) )
+        elif tool == 'optimal_k' and assembler == 'unitiger':
+          input_.append(config["OUTBASE"]+"{0}/{1}/unitigs_{2}.fasta".format(dataset, tool, assembler) )
+        elif tool == 'preqc': 
+          input_.append(config["OUTBASE"]+"{0}/{1}/default_{2}.fasta".format(dataset, tool, assembler) )
+        elif tool == 'kmergenie':
+          input_.append(config["OUTBASE"]+"{0}/{1}/default_{2}.fasta".format(dataset, tool, assembler) )
+        elif tool == 'optimal_k':
+          input_.append(config["OUTBASE"]+"{0}/{1}/contigs_{2}.fasta".format(dataset, tool, assembler) )
 
   return input_
 
-def prediction_input(wildcards):
+def prediction_targets(wildcards):
   input_= []
 
   for dataset in config["DATASETS"]:
     for tool in config["TOOLS"]:
-      if tool = 'optimal_k':
+      if tool == 'optimal_k':
         input_.append(config["OUTBASE"]+"{0}/{1}/best_params_unitigs.txt".format(dataset, tool))
         input_.append(config["OUTBASE"]+"{0}/{1}/best_params_contigs.txt".format(dataset, tool))
       else:
@@ -307,7 +315,7 @@ def prediction_input(wildcards):
 
   return input_
 
-def evaluation_input(wildcards):
+def evaluation_targets(wildcards):
   input_= []
 
   for dataset in config["DATASETS"]:
@@ -315,21 +323,39 @@ def evaluation_input(wildcards):
       for assembler in config["ASSEMBLERS"]:
         if tool == 'preqc' and assembler == 'minia_utg':
             continue
+        elif tool == 'optimal_k' and assembler == 'minia_utg':
+          input_.append(config["OUTBASE"]+"{0}/{1}/result_metrics_unitigs_{2}.csv".format(dataset, tool, assembler) )
+        elif tool == 'optimal_k' and assembler == 'unitiger':
+          input_.append(config["OUTBASE"]+"{0}/{1}/result_metrics_unitigs_{2}.csv".format(dataset, tool, assembler) )
+        elif tool == 'preqc':
+          input_.append(config["OUTBASE"]+"{0}/{1}/result_metrics_default_{2}.csv".format(dataset, tool, assembler) )
+        elif tool == 'kmergenie':
+          input_.append(config["OUTBASE"]+"{0}/{1}/result_metrics_default_{2}.csv".format(dataset, tool, assembler) )
+        elif tool == 'optimal_k':
+          input_.append(config["OUTBASE"]+"{0}/{1}/result_metrics_contigs_{2}.csv".format(dataset, tool, assembler) )
 
-        input_.append(config["OUTBASE"]+"{0}/{1}/result_metrics_{2}.csv".format(dataset, tool, assembler) )
+
+        #input_.append(config["OUTBASE"]+"{0}/{1}/result_metrics_{2}.csv".format(dataset, tool, assembler) )
+
+  return input_
+
+def sampling_targets(wildcards):
+  input_= []
+
+  for dataset in config["DATASETS"]:
+    input_.append(config["OUTBASE"]+"{0}/optimal_k/best_params_unitigs.txt".format(dataset) )
+    input_.append(config["OUTBASE"]+"{0}/optimal_k/best_params_contigs.txt".format(dataset) )
 
   return input_
 
 ###########################################################
 ###########################################################
 
-
-# sub build targets
 rule all:
     input:
-        config["OUTBASE"]+"performance_table.tex",        
+        config["OUTBASE"]+"performance_table.tex",
         expand(config["OUTBASE"]+"quality_table_{assembler}.tex", assembler=config["ASSEMBLERS"])
-    params: 
+    params:
         runtime="15:00",
         memsize = "'mem128GB|mem256GB|mem512GB'",
         partition = "core",
@@ -339,9 +365,10 @@ rule all:
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
 
+# sub build targets
+
 rule sampling:
-    input:
-        best_params=expand(config["OUTBASE"]+"{dataset}/optimal_k/best_params.txt", dataset = config["DATASETS"])       
+    input: sampling_targets   
     params: 
         runtime="15:00",
         memsize = "'mem128GB|mem256GB|mem512GB'",
@@ -353,7 +380,7 @@ rule sampling:
         mail_type=config["SBATCH"]["MAIL_TYPE"]
 
 rule predict:
-    input: prediction_input
+    input: prediction_targets
     params: 
         runtime="15:00",
         memsize = "mem128GB",
@@ -365,7 +392,7 @@ rule predict:
         mail_type=config["SBATCH"]["MAIL_TYPE"]
 
 rule assemble:
-    input: assembly_input
+    input: assembly_targets
     params: 
         runtime="15:00",
         memsize = "mem128GB",
@@ -377,7 +404,7 @@ rule assemble:
         mail_type=config["SBATCH"]["MAIL_TYPE"]
 
 rule evaluate:
-    input: evaluation_input
+    input: evaluation_targets
     params: 
         runtime="15:00",
         memsize = "mem128GB",
@@ -387,6 +414,21 @@ rule evaluate:
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
+
+#rule all:
+#    input: rules.predict.input, rules.assemble.input, rules.evaluate.input,
+#        config["OUTBASE"]+"performance_table.tex",
+#        expand(config["OUTBASE"]+"quality_table_{assembler}.tex", assembler=config["ASSEMBLERS"])
+#    params:
+#        runtime="15:00",
+#        memsize = "'mem128GB|mem256GB|mem512GB'",
+#        partition = "core",
+#        n = "1",
+#        jobname="all",
+#        account=config["SBATCH"]["ACCOUNT"],
+#        mail=config["SBATCH"]["MAIL"],
+#        mail_type=config["SBATCH"]["MAIL_TYPE"]
+
 
 rule optimal_k_index:
     input: reads=config["INBASE"]+"{dataset}.cfg"
@@ -474,13 +516,13 @@ rule optimal_k_sampling_unitigs:
 
 rule get_best_params:
     input: config["OUTBASE"]+"{dataset}/optimal_k/sampling_{type}_ok.txt"
-    output: best_params= expand(config["OUTBASE"]+"{dataset}/optimal_k/best_params_{type}.txt",  dataset=config["DATASETS"], type=config["SAMPLING_TYPE"])  #config["OUTBASE"]+"{dataset}/optimal_k/best_params.txt"
+    output: best_params= config["OUTBASE"]+"{dataset}/optimal_k/best_params_{type}.txt"  #config["OUTBASE"]+"{dataset}/optimal_k/best_params.txt"
     params: 
         runtime="10:00",
         memsize = "'mem128GB|mem256GB|mem512GB'",
         partition = "core",
         n = "1",
-        jobname="get_best_params",
+        jobname="get_best_params_{type}",
         account=config["SBATCH"]["ACCOUNT"],
         mail=config["SBATCH"]["MAIL"],
         mail_type=config["SBATCH"]["MAIL_TYPE"]
@@ -572,7 +614,7 @@ rule preqc:
 rule unitiger:
     input:  reads=config["INBASE"]+"{dataset}.cfg", 
             params=config["OUTBASE"]+"{dataset}/{tool}/best_params_{type}.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
-    output: unitigs=config["OUTBASE"]+"{dataset}/{tool}/unitiger.fasta"
+    output: unitigs=config["OUTBASE"]+"{dataset}/{tool}/{type}_unitiger.fasta"
     params: 
         runtime=lambda wildcards: config["SBATCH"][wildcards.dataset]["unitiger_time"],
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
@@ -610,7 +652,7 @@ rule unitiger:
 rule minia:
     input:  reads=config["INBASE"]+"{dataset}.cfg", 
             params=config["OUTBASE"]+"{dataset}/{tool}/best_params_{type}.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
-    output: contigs=config["OUTBASE"]+"{dataset}/{tool}/minia.fasta"
+    output: contigs=config["OUTBASE"]+"{dataset}/{tool}/{type}_minia.fasta"
     params: 
         runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["minia_time"],
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_memsize"],
@@ -641,8 +683,8 @@ rule minia:
 
 rule minia_utg:
     input:  reads=config["INBASE"]+"{dataset}.cfg", 
-            params=config["OUTBASE"]+"{dataset}/{tool}/best_params_{type}.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
-    output: contigs=config["OUTBASE"]+"{dataset}/{tool}/minia_utg.fasta"
+            params=config["OUTBASE"]+"{dataset}/{tool}/best_params_{type}.txt" 
+    output: contigs=config["OUTBASE"]+"{dataset}/{tool}/{type}_minia_utg.fasta"
     params: 
         runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["minia_time"],
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["small_memsize"],
@@ -664,7 +706,7 @@ rule minia_utg:
 rule abyss:
     input:  reads=config["INBASE"]+"{dataset}.cfg", 
             params=config["OUTBASE"]+"{dataset}/{tool}/best_params_{type}.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
-    output: contigs=config["OUTBASE"]+"{dataset}/{tool}/abyss.fasta"
+    output: contigs=config["OUTBASE"]+"{dataset}/{tool}/{type}_abyss.fasta"
     params: 
         runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["abyss_time"],
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
@@ -695,7 +737,7 @@ rule abyss:
 rule velvet:
     input:  reads=config["INBASE"]+"{dataset}.cfg", 
             params=config["OUTBASE"]+"{dataset}/{tool}/best_params_{type}.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
-    output: contigs=config["OUTBASE"]+"{dataset}/{tool}/velvet.fasta"
+    output: contigs=config["OUTBASE"]+"{dataset}/{tool}/{type}_velvet.fasta"
     params: 
         runtime=lambda wildcards:  config["SBATCH"][wildcards.dataset]["velvet_time"],
         memsize = lambda wildcards: config["SBATCH"][wildcards.dataset]["memsize"],
@@ -721,10 +763,10 @@ rule velvet:
         #shell("rm -r {prefix}")
 
 rule QUAST:
-    input: contigs=config["OUTBASE"]+"{dataset}/{tool}/{assembler}.fasta",
+    input: contigs=config["OUTBASE"]+"{dataset}/{tool}/{type}_{assembler}.fasta",
             param=config["OUTBASE"]+"{dataset}/{tool}/best_params_{type}.txt"
     output: #results=config["OUTBASE"]+"{dataset}/{tool}/QUAST/report.txt",
-            nice_format=config["OUTBASE"]+"{dataset}/{tool}/result_metrics_{assembler}_{type}.csv"
+            nice_format=config["OUTBASE"]+"{dataset}/{tool}/result_metrics_{type}_{assembler}.csv"
     log: config["OUTBASE"]+"{dataset}/{tool}/{assembler}/quast.output"
     params: 
         runtime=lambda wildcards: config["SBATCH"][wildcards.dataset]["quast_time"],
@@ -802,7 +844,7 @@ rule performace_latex_table:
             print("{0} & {1} & {2} & {3} & {4} & {5} \\\ \hline".format(*line.strip().split()), file=table_file)
 
 rule quality_latex_table:
-    input: map(lambda x: x+"{assembler}.csv", expand(config["OUTBASE"]+"{dataset}/{tool}/result_metrics_",  dataset=config["DATASETS"], tool=config["TOOLS"]) ) 
+    input: evaluation_targets #map(lambda x: x+"{assembler}.csv", expand(config["OUTBASE"]+"{dataset}/{tool}/result_metrics_",  dataset=config["DATASETS"], tool=config["TOOLS"]) ) 
     output: table=config["OUTBASE"]+"quality_table_{assembler}.tex"
     params: 
         runtime="15:00",
