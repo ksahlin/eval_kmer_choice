@@ -289,6 +289,8 @@ def assembly_targets(wildcards):
       for assembler in config["ASSEMBLERS"]:
         if tool == 'preqc' and assembler == 'minia_utg':
             continue
+        if tool == 'preqc' and assembler == 'unitiger':
+            continue
         elif tool == 'optimal_k' and assembler == 'minia_utg':
           input_.append(config["OUTBASE"]+"{0}/{1}/unitigs_{2}.fasta".format(dataset, tool, assembler) )
         elif tool == 'optimal_k' and assembler == 'unitiger':
@@ -322,6 +324,8 @@ def evaluation_targets(wildcards):
     for tool in config["TOOLS"]:
       for assembler in config["ASSEMBLERS"]:
         if tool == 'preqc' and assembler == 'minia_utg':
+            continue
+        if tool == 'preqc' and assembler == 'unitiger':
             continue
         elif tool == 'optimal_k' and assembler == 'minia_utg':
           input_.append(config["OUTBASE"]+"{0}/{1}/result_metrics_unitigs_{2}.csv".format(dataset, tool, assembler) )
