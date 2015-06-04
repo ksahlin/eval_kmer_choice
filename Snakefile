@@ -227,9 +227,9 @@ def parse_quast(quast_report):
             N50 = int(line.strip().split()[1])
 
         if re.match(r"ESIZE_GENOME",line):
-            ESIZE_GENOME = float(line.strip().split()[2]) 
+            ESIZE_GENOME = float(line.strip().split()[1]) 
         if re.match(r"CORR_ESIZE_GENOME",line):
-            CORR_ESIZE_GENOME = float(line.strip().split()[2]) 
+            CORR_ESIZE_GENOME = float(line.strip().split()[1]) 
 
 
     if has_ref:
