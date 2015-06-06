@@ -668,7 +668,7 @@ rule minia:
         mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
         time = config["GNUTIME"]
-        prefix=config["OUTBASE"]+"{0}/{1}/minia".format(wildcards.dataset, wildcards.tool)
+        prefix=config["OUTBASE"]+"{0}/{1}/{2}_minia".format(wildcards.dataset, wildcards.tool, wildcards.type)
         k,a = get_k_and_a_for_assembler(input.params)
         # stdout=config["OUTBASE"]+"{0}/{1}/minia.stdout".format(wildcards.dataset, wildcards.tool)
         stderr=config["OUTBASE"]+"{0}/{1}/minia.stderr".format(wildcards.dataset, wildcards.tool) 
@@ -700,7 +700,7 @@ rule minia_utg:
         mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
         time = config["GNUTIME"]
-        prefix=config["OUTBASE"]+"{0}/{1}/minia_utg".format(wildcards.dataset, wildcards.tool)
+        prefix=config["OUTBASE"]+"{0}/{1}/{2}_minia_utg".format(wildcards.dataset, wildcards.tool, wildcards.type)
         k,a = get_k_and_a_for_assembler(input.params)
         # stdout=config["OUTBASE"]+"{0}/{1}/minia_utg.stdout".format(wildcards.dataset, wildcards.tool)
         stderr=config["OUTBASE"]+"{0}/{1}/minia_utg.stderr".format(wildcards.dataset, wildcards.tool) 
