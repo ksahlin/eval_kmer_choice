@@ -289,7 +289,7 @@ def assembly_targets(wildcards):
       for assembler in config["ASSEMBLERS"]:
         if tool == 'preqc' and assembler == 'minia_utg':
             continue
-        elif tool == 'preqc' and assembler == 'unitiger':
+        if tool == 'preqc' and assembler == 'unitiger':
             continue
         elif tool == 'optimal_k' and assembler == 'minia_utg':
           input_.append(config["OUTBASE"]+"{0}/{1}/unitigs_{2}.fasta".format(dataset, tool, assembler) )
@@ -325,7 +325,7 @@ def evaluation_targets(wildcards):
       for assembler in config["ASSEMBLERS"]:
         if tool == 'preqc' and assembler == 'minia_utg':
             continue
-        elif tool == 'preqc' and assembler == 'unitiger':
+        if tool == 'preqc' and assembler == 'unitiger':
             continue
         elif tool == 'optimal_k' and assembler == 'minia_utg':
           input_.append(config["OUTBASE"]+"{0}/{1}/result_metrics_unitigs_{2}.csv".format(dataset, tool, assembler) )
@@ -640,7 +640,7 @@ rule unitiger:
         stderr=config["OUTBASE"]+"{0}/{1}/unitiger.stderr".format(wildcards.dataset, wildcards.tool)
         #shell("{time} {python} {path}Unitiger_wrapper.py -r {input.reads} -o {prefix} -k {k} -K {k} -a {a} -A {a} 2>&1 | tee -a {stderr}")   
         shell("{time} {path}Unitiger -r {input.reads} -o {prefix} -k {k} -a {a} -t 0 2>&1 | tee -a {stderr}")   
-        shell("mv {0} {1}".format(prefix+".k{0}.a{1}.unitigs".format(k,a), prefix+'.fasta'))
+        shell("mv {0} {1}".format(prefix+".k{0}.a{1}.unitigs".format(k,a), output.unitigs))
 
         ###########
         # for testing on mac:
@@ -673,7 +673,7 @@ rule minia:
         # stdout=config["OUTBASE"]+"{0}/{1}/minia.stdout".format(wildcards.dataset, wildcards.tool)
         stderr=config["OUTBASE"]+"{0}/{1}/minia.stderr".format(wildcards.dataset, wildcards.tool) 
         shell("{time} minia -in {input.reads} -kmer-size {k} -abundance-min 3 -no-length-cutoff -out {prefix} 2>&1 | tee -a {stderr}")   
-        shell("mv {0} {1}".format(prefix+".contigs.fa", prefix+'.fasta'))
+        shell("mv {0} {1}".format(prefix+".contigs.fa", output.contigs))
         ###########
         # for testing on mac:
 
@@ -705,7 +705,7 @@ rule minia_utg:
         # stdout=config["OUTBASE"]+"{0}/{1}/minia_utg.stdout".format(wildcards.dataset, wildcards.tool)
         stderr=config["OUTBASE"]+"{0}/{1}/minia_utg.stderr".format(wildcards.dataset, wildcards.tool) 
         shell("{time} minia -in {input.reads} -traversal unitig -starter simple -no-length-cutoff -kmer-size {k} -abundance-min {a} -out {prefix} 2>&1 | tee -a {stderr}")   
-        shell("mv {0} {1}".format(prefix+".contigs.fa", prefix+'.fasta'))
+        shell("mv {0} {1}".format(prefix+".contigs.fa", output.contigs))
 
 rule abyss:
     input:  reads=config["INBASE"]+"{dataset}.cfg", 
@@ -722,7 +722,7 @@ rule abyss:
         mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
         time = config["GNUTIME"]
-        prefix=config["OUTBASE"]+"{0}/{1}/abyss".format(wildcards.dataset, wildcards.tool)
+        prefix=config["OUTBASE"]+"{0}/{1}/{2}_abyss".format(wildcards.dataset, wildcards.tool, wildcards.type)
         k,a = get_k_and_a_for_assembler(input.params)
         # stdout=config["OUTBASE"]+"{0}/{1}/abyss.stdout".format(wildcards.dataset, wildcards.tool)
         stderr=config["OUTBASE"]+"{0}/{1}/abyss.stderr".format(wildcards.dataset, wildcards.tool) 
