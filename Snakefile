@@ -532,8 +532,8 @@ rule get_best_params:
         mail_type=config["SBATCH"]["MAIL_TYPE"]
     run:
         prefix=config["OUTBASE"]+"{0}/optimal_k/sampling_{1}".format(wildcards.dataset, wildcards.type)
-        min_a = config["optimal_k_rules"]["min_abundance"]
-        max_a = config["optimal_k_rules"]["max_abundance"]
+        min_a = config["optimal_k_rules"]["{0}".format(wildcards.type)]["min_abundance"]
+        max_a = config["optimal_k_rules"]["{0}".format(wildcards.type)]["max_abundance"]
         max_objective = 0
         best_k = 0
         best_a = 0

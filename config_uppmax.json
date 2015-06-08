@@ -10,8 +10,10 @@
     "optimal_k_rules" : {
         "path" : "/home/kris/bin/optimal-k",
         "script_path" : "/home/kris/git_repos/optimal_k/scripts/",
-        "min_abundance" : "3",
-        "max_abundance" : "3"
+        "contigs" : { "min_abundance" : "3",
+                        "max_abundance" : "3"},
+        "unitigs" : { "min_abundance" : "2",
+                        "max_abundance" : "10"}
     },
     "unitiger_rules" : {
         "path" : "/home/kris/git_repos/optimal_k/bin/Unitiger/"
