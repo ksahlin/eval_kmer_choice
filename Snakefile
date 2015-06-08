@@ -485,8 +485,8 @@ rule optimal_k_sampling_contigs:
     run:
         time=config["GNUTIME"]
         prefix=config["OUTBASE"]+"{0}/optimal_k/sampling_contigs".format(wildcards.dataset)
-        min_a = config["optimal_k_rules"]["min_abundance"]
-        max_a = config["optimal_k_rules"]["max_abundance"]
+        #min_a = config["optimal_k_rules"]["min_abundance"]
+        #max_a = config["optimal_k_rules"]["max_abundance"]
         index_path=config["OUTBASE"]+"{0}/optimal_k/index".format(wildcards.dataset)
 
         shell(" {time} optimal-k -r {input.reads}  --loadindex {index_path} -a {min_a} -A {max_a} -o {prefix} -s 100000 1> {output.stdout} 2> {output.stderr}")
@@ -511,8 +511,8 @@ rule optimal_k_sampling_unitigs:
     run:
         time=config["GNUTIME"]
         prefix=config["OUTBASE"]+"{0}/optimal_k/sampling_unitigs".format(wildcards.dataset)
-        min_a = config["optimal_k_rules"]["min_abundance"]
-        max_a = config["optimal_k_rules"]["max_abundance"]
+        #min_a = config["optimal_k_rules"]["min_abundance"]
+        #max_a = config["optimal_k_rules"]["max_abundance"]
         index_path=config["OUTBASE"]+"{0}/optimal_k/index".format(wildcards.dataset)
 
         shell(" {time} optimal-k -r {input.reads}  --loadindex {index_path} -a 2 -A 12 -o {prefix} -s 100000 1> {output.stdout} 2> {output.stderr}")
