@@ -11,9 +11,9 @@
         "path" : "/home/kris/bin/optimal-k",
         "script_path" : "/home/kris/git_repos/optimal_k/scripts/",
         "contigs" : { "min_abundance" : "2",
-                        "max_abundance" : "10"},
+                        "max_abundance" : "12"},
         "unitigs" : { "min_abundance" : "2",
-                        "max_abundance" : "10"}
+                        "max_abundance" : "12"}
     },
     "unitiger_rules" : {
         "path" : "/home/kris/git_repos/optimal_k/bin/Unitiger/"
