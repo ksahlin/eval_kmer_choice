@@ -119,7 +119,7 @@
                  "plasm" : "590",
                  "hs14" : "155"}, 
 
-    "DATASETS" : ["staph", "rhodo"],
+    "DATASETS" : ["staph", "rhodo", "plasm", "hs14"],
     "TOOLS" :["optimal_k", "kmergenie", "preqc"],
     "METHODS" : ["sampling", "index", "default", "preqc"],
     "SAMPLING_TYPE" : ["unitigs", "contigs"],
