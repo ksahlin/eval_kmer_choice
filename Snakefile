@@ -674,16 +674,12 @@ rule minia:
         stderr=config["OUTBASE"]+"{0}/{1}/minia.stderr".format(wildcards.dataset, wildcards.tool) 
         shell("{time} minia -in {input.reads} -kmer-size {k} -abundance-min 3 -no-length-cutoff -out {prefix} 2>&1 | tee -a {stderr}")   
         shell("mv {0} {1}".format(prefix+".contigs.fa", output.contigs))
-        ###########
-        # for testing on mac:
 
-        # print("{0}\n{1}\n{2}\n{3}\n{4}\n{5}".format('>ctg1','CTAGCTCTACGTCACTCACGCCCCGCTTTCTATTGATGGAAGTCGTCTAATTCACTATAACAGCGAATCGGGGCCCCTCAGCCCATATGCTGAGCCCTCCTGTACGTGATCTATACTGGCTTTTAATACAGAAGGCCACCACTA',\
-        #     '>ctg2','CCCTAGCACCGTCACTCTATTTTGTACCCTTGAACTTCTCGACATTCTATTTCGGCCAGGCGTACAAACCTGCGGTGATGGGCCTGCTAAACACCACC',\
-        #     '>ctg3','CGGCGAAGCTTAGGCGCTTCAAAAGCCAAAACATCAACGATGGTTCGCCGGGGGTGACGCCTTACCTATCTAGCGTGCGTCGCGTGATGCACGCTGGCATTGAGGTGAATTCGGCCTAGGATGCTTAATCAGAGCATGTTCCATCGTTAGCGGCTGCCAGGAAGGTGGTATATCACCTCCGGGGTGGTCAAAAATGGGGTCGC'),\
-        #      file=open(prefix+".contigs.fa", 'w') ) 
-        # print("{0}".format(STDERRSTRING), file=open(output.stderr, 'w') ) 
-        # print("{0}".format(STDERRSTRING), file=open(output.stdout, 'w') ) 
-        ###########
+        # clean
+        folder = config["OUTBASE"]+"{0}/{1}/".format(wildcards.dataset, wildcards.tool)
+        shell("rm -f {folder}*.parts.* ")
+        shell("rm -f {folder}*.h5")
+
 
 rule minia_utg:
     input:  reads=config["INBASE"]+"{dataset}.cfg", 
@@ -707,6 +703,11 @@ rule minia_utg:
         shell("{time} minia -in {input.reads} -traversal unitig -starter simple -no-length-cutoff -kmer-size {k} -abundance-min {a} -out {prefix} 2>&1 | tee -a {stderr}")   
         shell("mv {0} {1}".format(prefix+".contigs.fa", output.contigs))
 
+        # clean
+        folder = config["OUTBASE"]+"{0}/{1}/".format(wildcards.dataset, wildcards.tool)
+        shell("rm -f {folder}*.parts.* ")
+        shell("rm -f {folder}*.h5")
+        
 rule abyss:
     input:  reads=config["INBASE"]+"{dataset}.cfg", 
             params=config["OUTBASE"]+"{dataset}/{tool}/best_params_{type}.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
