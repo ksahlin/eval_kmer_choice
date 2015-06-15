@@ -489,7 +489,7 @@ rule optimal_k_sampling_contigs:
         #max_a = config["optimal_k_rules"]["max_abundance"]
         index_path=config["OUTBASE"]+"{0}/optimal_k/index".format(wildcards.dataset)
 
-        shell(" {time} optimal-k -r {input.reads}  --loadindex {index_path} -a 2 -A 12 -o {prefix} -s 100000 1> {output.stdout} 2> {output.stderr}")
+        shell(" {time} optimal-k -r {input.reads}  --loadindex {index_path} -a 2 -A 12 -o {prefix} 1> {output.stdout} 2> {output.stderr}")
         shell("touch {output.complete}")
 
 rule optimal_k_sampling_unitigs:
@@ -515,7 +515,7 @@ rule optimal_k_sampling_unitigs:
         #max_a = config["optimal_k_rules"]["max_abundance"]
         index_path=config["OUTBASE"]+"{0}/optimal_k/index".format(wildcards.dataset)
 
-        shell(" {time} optimal-k -r {input.reads}  --loadindex {index_path} -a 2 -A 12 -u -o {prefix} -s 100000 1> {output.stdout} 2> {output.stderr}")
+        shell(" {time} optimal-k -r {input.reads}  --loadindex {index_path} -a 2 -A 12 -u -o {prefix} 1> {output.stdout} 2> {output.stderr}")
         shell("touch {output.complete}")
 
 rule get_best_params:
@@ -707,7 +707,7 @@ rule minia_utg:
         folder = config["OUTBASE"]+"{0}/{1}/".format(wildcards.dataset, wildcards.tool)
         shell("rm -f {folder}*.parts.* ")
         shell("rm -f {folder}*.h5")
-        
+
 rule abyss:
     input:  reads=config["INBASE"]+"{dataset}.cfg", 
             params=config["OUTBASE"]+"{dataset}/{tool}/best_params_{type}.txt" # #rules.kmergenie.output.best_params, rules.optimal_k_sampling.output.best_params,
